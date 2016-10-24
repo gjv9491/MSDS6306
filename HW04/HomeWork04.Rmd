@@ -1,0 +1,224 @@
+---
+title: "HomeWork04: Understanding bootstrap"
+author: "Gino Varghese"
+date: "October 22, 2016"
+output: 
+  html_document:
+    keep_md: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Homework 04 Instructions      
+* Write bootstrap code to illustrate the central limit theorem in R markdown and push the result to GitHub. Use a normal distribution with two different sample sizes and an exponential distribution with two different sample sizes. Correct code alone is insufficient. Please also comment on the code and explain the results. For help, see the lotsa.medians function in Unit 4. The deliverable is a link to a GitHub repo containing the code.           
+
+<br>
+<br>
+
+### Functions        
+
+* getNormalDistribution()         
+    + Random generation for the normal distribution, requires the number of samples to be generated with a desired mean and standard deviation, by default the mean and standard deviation is set to 0 and 1, returns the normaly distributed samples   
+    + getNormalDistribution(n,meanval,sdval)   
+    + Parameters:      
+        + n = number of sample data to collect      
+        + meanval = desired mean     
+        + sdval = desired standard deviation   
+    + Returns:    
+        + getNormalDistributionVal = normal distributed values
+    + mean defaults to 0, standard deviation defaults to 1    
+<br>
+* getExponentialDistribution()         
+    + Random generation for the exponential distribution, requires the number of samples to be generated with a desired rate returns exponentially distributed samples      
+    + getExponentialDistribution(n,rate)   
+    + Parameters:      
+        + n = number of sample data to collect      
+        + rate = desired rate     
+    + Returns:    
+        + getExponentialDistributionVal = Exponential distributed samples      
+    + rate defaults to 1           
+<br>
+* getBootstrapMean()            
+    + Generates bootstrap mean when [Normal|Exponential] distribution are passed in with desired number of boot strap samples           
+    + getBootstrapMean(distribution,bootsamples)          
+    + Parameters:        
+        + distribution = sample distribution               
+        + bootsamples = number of sample data to collect     
+    + Returns:    
+        + bootmean = BootMeans      
+<br>
+
+```{r ndfunctions, echo=TRUE, tidy=TRUE}
+source("getNormalDistribution.R", echo = TRUE)
+```
+```{r edfunctions, echo=TRUE, tidy=TRUE}
+source("getExponentialDistribution.R", echo = TRUE)
+```
+```{r bsmfunctions, echo=TRUE, tidy=TRUE}
+source("getBootstrapMean.R", echo = TRUE)
+```
+
+<br>        
+
+##Setup
+##### For this homework, i chose to collect sample size of 50 and 500 for both [random normal & random exponential ] distributions, to understand how samples size perform when they are bootstrapped. I chose to run 5000 bootstrap samples after.     
+<br>    
+
+## Normal Distribuiton w. BootStrap 
+<br>
+
+* Sample Size of 50, mean of 20 and standard deviation of 5
+```{r nds50, echo=FALSE}
+ND50rndsample <- getNormalDistribution(50,20,5)
+
+## Random sample summary
+summary(ND50rndsample)
+
+##Histogram 
+ hist(ND50rndsample, main = "Random Normal Sample Size of 50", xlab="Random samples", col = "orange")
+```
+                         
+                         
+                         
+<br>      
+
+* Bootstrap of sample size 50
+```{r bnds50, echo=FALSE}
+bootstrapmean50 <- getBootstrapMean(ND50rndsample,5000)
+
+## Random sample summary
+summary(bootstrapmean50)
+
+##Histogram 
+hist(bootstrapmean50, main = "Bootstrap of random normal Sample Size of 50", xlab="Boot straped samples", col = "green")
+```
+
+<br>
+```{r sdnd50, echo=FALSE}
+## Standard deviation
+paste('Standard deviation of Random Normal Size 50 : ',sd(ND50rndsample))
+paste('Standard deviation of Bootstaped samples : ', sd(bootstrapmean50))
+```
+The bootstrap samples looks normally distributed, when comparing there standard deviation, we can see that bootstrap samples are closer together than normally distributed samples.
+
+<br>
+<br>
+<br>
+
+* Sample Size of 500, mean of 20 and standard deviation of 5
+```{r nds500, echo=FALSE}
+ND500rndsample <- getNormalDistribution(500,20,5)
+
+## Random sample summary
+summary(ND500rndsample)
+
+##Histogram 
+ hist(ND500rndsample, main = "Random Normal Sample Size of 500", xlab="Random samples", col = "cyan")
+```
+
+<br>      
+
+* Bootstrap of sample size 500
+```{r bnds500, echo=FALSE}
+bootstrapmean500 <- getBootstrapMean(ND500rndsample,5000)
+
+## Random sample summary
+summary(bootstrapmean500)
+
+##Histogram 
+hist(bootstrapmean500, main = "Bootstrap of random normal Sample Size of 500", xlab="Boot straped samples", col = "green")
+```
+
+<br>
+```{r sdnd500, echo=FALSE}
+## Standard deviation
+paste('Standard deviation of Random Normal Size 500 : ',sd(ND500rndsample))
+paste('Standard deviation of Bootstaped samples : ', sd(bootstrapmean500))
+```
+The bootstrap sample looks more normally distributed, when comparing there standard deviation, we can see that bootstrap samples are closer together than normally distributed samples.     
+
+<br>
+<br>
+<br>
+
+
+## Exponential Distribuiton w. BootStrap 
+<br>
+
+* Sample Size of 50, mean of 20 and standard deviation of 5
+```{r eds50, echo=FALSE}
+ED50rndsample <- getExponentialDistribution(50)
+
+## Random sample summary
+summary(ED50rndsample)
+
+##Histogram 
+ hist(ED50rndsample, main = "Random Exponential Sample Size of 50", xlab="Random samples", col = "orange")
+```
+                         
+                         
+                         
+<br>      
+
+* Bootstrap of sample size 50
+```{r beds50, echo=FALSE}
+ebootstrapmean50 <- getBootstrapMean(ED50rndsample,5000)
+
+## Random sample summary
+summary(ebootstrapmean50)
+
+##Histogram 
+hist(ebootstrapmean50, main = "Bootstrap of random exponential Sample Size of 50", xlab="Boot straped samples", col = "green")
+```
+
+<br>
+```{r sded50, echo=FALSE}
+## Standard deviation
+paste('Standard deviation of Random Exponential Size 50 : ',sd(ED50rndsample))
+paste('Standard deviation of Bootstaped samples : ', sd(ebootstrapmean50))
+```
+The bootstrap samples looks normally distributed, when comparing there standard deviation, we can see that bootstrap samples are closer together than normally distributed samples.
+
+<br>
+<br>
+<br>
+
+* Sample Size of 500, mean of 20 and standard deviation of 5
+```{r eds500, echo=FALSE}
+ED500rndsample <- getExponentialDistribution(500)
+
+## Random sample summary
+summary(ED500rndsample)
+
+##Histogram 
+ hist(ED500rndsample, main = "Random Exponential Sample Size of 500", xlab="Random samples", col = "cyan")
+```
+
+<br>      
+
+* Bootstrap of sample size 500
+```{r beds500, echo=FALSE}
+ebootstrapmean500 <- getBootstrapMean(ED500rndsample,5000)
+
+## Random sample summary
+summary(ebootstrapmean500)
+
+##Histogram 
+hist(ebootstrapmean500, main = "Bootstrap of exponential normal Sample Size of 500", xlab="Boot straped samples", col = "green")
+```
+
+<br>
+```{r sded500, echo=FALSE}
+## Standard deviation
+paste('Standard deviation of Random Exponential Size 500 : ',sd(ED500rndsample))
+paste('Standard deviation of Bootstaped samples : ', sd(ebootstrapmean500))
+```
+The bootstrap sample looks more normally distributed, when comparing there standard deviation, we can see that bootstrap samples are closer together than normally distributed samples.         
+
+<br>
+
+## Conclusion:
+##### When comparing both bootstrapped samples and random samplles, we can say that the following are true, the bootstrapped samples are normally distributed as per the histogram, the spread of data is smaller when compared to both the distributions. We can say that the effect of the Central Limit Theorem is clearly displayed when comapring the effects of bootstapping on either of the distributions.
+
