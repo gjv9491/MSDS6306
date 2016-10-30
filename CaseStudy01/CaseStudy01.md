@@ -1,4 +1,4 @@
-# A understanding of countries GDP in respect to its educational data
+#  Understanding the relationship between Education and GDP.
 Gino Varghese  
 October 25, 2016  
 
@@ -9,7 +9,7 @@ October 25, 2016
 
 * First set of data contains Gross Domestic Product which is comprised of 2012 GDP values for 190 countries throughout the world. More recent data is hosted on Worldbank.org.     
     + http://data.worldbank.org/data-catalog/GDP-ranking-table
-* Second contains educational data of these countries more.       
+* Second contains World Bank Education Stats data.       
     + http://data.worldbank.org/data-catalog/ed-stats
 <br>
 
@@ -71,7 +71,7 @@ sessionInfo()
 <br>
 <br>
 
-##### Now to start our analysis we need to first download the data sets        
+#### Now to start our analysis we need to first download the data sets        
 
 * **Gross Domestic Product download**         
     + This process downloads Gross Domestic Product data sets and renames it as "GDPbyCountry.csv"     
@@ -136,10 +136,11 @@ list.files()
     + The csv file is loaded into **Rawgdp** data frame          
         + the data frame is reviewed by using R commands such as: head, tail and str        
     + The **Rawgdp** is then loaded into **GDP** data frame to begin the tidying process          
-    + *_Tidying process_*            
+    + **Tidying process**            
         + We modified the **GDP** data frame as follows:
             + V[n] column headers are removed        
-            + Unwanted space between column header and data is removed        
+            + Unwanted space between column header and data is removed    
+            + Empty columns with no data are removed
             + column names are renamed to lower case
             + "us dollars)" column name is renamed to us.dollars
             + ISO3.CountryCode are generated for each row and stored in iso3.countrycode
@@ -154,9 +155,6 @@ list.files()
                 + Tidy GDP data : 214 rows  
     + Tidy data is then written to **"GDP_Final.csv"** file, to facilitate analysis.
                 
-                
-            
-    
 
 
 ```r
@@ -262,6 +260,9 @@ source("Cleanup_GDP.R", echo = TRUE)
 ## 
 ## > GDP$us.dollars[which(is.na(GDP$us.dollars) == TRUE)] <- 0
 ## 
+## > dim(RAWgdp)
+## [1] 331  10
+## 
 ## > dim(GDP)
 ## [1] 214   6
 ## 
@@ -273,6 +274,327 @@ source("Cleanup_GDP.R", echo = TRUE)
 ## > write.csv(GDPNoCountryCode, "GDPNoCountryCode.csv")
 ```
 
+<br>          
+
+* **World Bank EdStats is loaded into R**        
+    + The csv file is loaded into **Rawedu** data frame          
+        + the data frame is reviewed by using R commands such as: head, tail and str        
+    + The **Rawedu** is then loaded into **EDU** data frame to begin the tidying process          
+    + **Tidying process**           
+        + We modified the **EDU** data frame as follows:
+            + V[n] column headers are removed        
+            + Unwanted space between column header and data is removed    
+            + Empty columns with no data are removed
+            + column names are renamed to lower case
+            + ISO3.CountryCode are generated for each row and stored in iso3.countrycode
+                + using countrycode package     
+            + "Kosovo", "Channel Islands" and "Sodom and Principe" iso3 country codes are added to the data set
+            + Rows that are not related to any countries are moved to another data frame **EDUNoCountryCode**      
+                + these data sets are also removed from **EDU** data frame     
+            + The final rows for each data frame are as follows:
+                + Raw EDU file : 331 rows      
+                + EDU data with NA : 23 rows      
+                + Tidy EDU data : 211 rows  
+    + Tidy data is then written to **"EDU_Final.csv"** file, to facilitate analysis.
+                
+
+
+```r
+source("Cleanup_EDU.R", echo = TRUE)
+```
+
+```
+## 
+## > RAWedu <- read.csv("EDUbyCountry.csv", header = FALSE, 
+## +     stringsAsFactors = FALSE)
+## 
+## > str(RAWedu)
+## 'data.frame':	235 obs. of  31 variables:
+##  $ V1 : chr  "CountryCode" "ABW" "ADO" "AFG" ...
+##  $ V2 : chr  "Long Name" "Aruba" "Principality of Andorra" "Islamic State of Afghanistan" ...
+##  $ V3 : chr  "Income Group" "High income: nonOECD" "High income: nonOECD" "Low income" ...
+##  $ V4 : chr  "Region" "Latin America & Caribbean" "Europe & Central Asia" "South Asia" ...
+##  $ V5 : chr  "Lending category" "" "" "IDA" ...
+##  $ V6 : chr  "Other groups" "" "" "HIPC" ...
+##  $ V7 : chr  "Currency Unit" "Aruban florin" "Euro" "Afghan afghani" ...
+##  $ V8 : chr  "Latest population census" "2000" "Register based" "1979" ...
+##  $ V9 : chr  "Latest household survey" "" "" "MICS, 2003" ...
+##  $ V10: chr  "Special Notes" "" "" "Fiscal year end: March 20; reporting period for national accounts data: FY." ...
+##  $ V11: chr  "National accounts base year" "1995" "" "2002/2003" ...
+##  $ V12: chr  "National accounts reference year" "" "" "" ...
+##  $ V13: chr  "System of National Accounts" "" "" "" ...
+##  $ V14: chr  "SNA price valuation" "" "" "VAB" ...
+##  $ V15: chr  "Alternative conversion factor" "" "" "" ...
+##  $ V16: chr  "PPP survey year" "" "" "" ...
+##  $ V17: chr  "Balance of Payments Manual in use" "" "" "" ...
+##  $ V18: chr  "External debt Reporting status" "" "" "Actual" ...
+##  $ V19: chr  "System of trade" "Special" "General" "General" ...
+##  $ V20: chr  "Government Accounting concept" "" "" "Consolidated" ...
+##  $ V21: chr  "IMF data dissemination standard" "" "" "GDDS" ...
+##  $ V22: chr  "Source of most recent Income and expenditure data" "" "" "" ...
+##  $ V23: chr  "Vital registration complete" "" "Yes" "" ...
+##  $ V24: chr  "Latest agricultural census" "" "" "" ...
+##  $ V25: chr  "Latest industrial data" "" "" "" ...
+##  $ V26: chr  "Latest trade data" "2008" "2006" "2008" ...
+##  $ V27: chr  "Latest water withdrawal data" "" "" "2000" ...
+##  $ V28: chr  "2-alpha code" "AW" "AD" "AF" ...
+##  $ V29: chr  "WB-2 code" "AW" "AD" "AF" ...
+##  $ V30: chr  "Table Name" "Aruba" "Andorra" "Afghanistan" ...
+##  $ V31: chr  "Short Name" "Aruba" "Andorra" "Afghanistan" ...
+## 
+## > head(RAWedu)
+##            V1                           V2                   V3
+## 1 CountryCode                    Long Name         Income Group
+## 2         ABW                        Aruba High income: nonOECD
+## 3         ADO      Principality of Andorra High income: nonOECD
+## 4         AFG Islamic State of Afghanistan           Low income
+## 5         AGO  People's Republic of Angola  Lower middle income
+## 6         ALB          Republic of Albania  Upper middle income
+##                          V4               V5           V6             V7
+## 1                    Region Lending category Other groups  Currency Unit
+## 2 Latin America & Caribbean                                Aruban florin
+## 3     Europe & Central Asia                                         Euro
+## 4                South Asia              IDA         HIPC Afghan afghani
+## 5        Sub-Saharan Africa              IDA              Angolan kwanza
+## 6     Europe & Central Asia             IBRD                Albanian lek
+##                         V8                       V9
+## 1 Latest population census  Latest household survey
+## 2                     2000                         
+## 3           Register based                         
+## 4                     1979               MICS, 2003
+## 5                     1970 MICS, 2001, MIS, 2006/07
+## 6                     2001               MICS, 2005
+##                                                                           V10
+## 1                                                               Special Notes
+## 2                                                                            
+## 3                                                                            
+## 4 Fiscal year end: March 20; reporting period for national accounts data: FY.
+## 5                                                                            
+## 6                                                                            
+##                           V11                              V12
+## 1 National accounts base year National accounts reference year
+## 2                        1995                                 
+## 3                                                             
+## 4                   2002/2003                                 
+## 5                        1997                                 
+## 6                                                         1996
+##                           V13                 V14
+## 1 System of National Accounts SNA price valuation
+## 2                                                
+## 3                                                
+## 4                                             VAB
+## 5                                             VAP
+## 6                        1993                 VAB
+##                             V15             V16
+## 1 Alternative conversion factor PPP survey year
+## 2                                              
+## 3                                              
+## 4                                              
+## 5                       1991-96            2005
+## 6                                          2005
+##                                 V17                            V18
+## 1 Balance of Payments Manual in use External debt Reporting status
+## 2                                                                 
+## 3                                                                 
+## 4                                                           Actual
+## 5                              BPM5                         Actual
+## 6                              BPM5                         Actual
+##               V19                           V20
+## 1 System of trade Government Accounting concept
+## 2         Special                              
+## 3         General                              
+## 4         General                  Consolidated
+## 5         Special                              
+## 6         General                  Consolidated
+##                               V21
+## 1 IMF data dissemination standard
+## 2                                
+## 3                                
+## 4                            GDDS
+## 5                            GDDS
+## 6                            GDDS
+##                                                 V22
+## 1 Source of most recent Income and expenditure data
+## 2                                                  
+## 3                                                  
+## 4                                                  
+## 5                                         IHS, 2000
+## 6                                        LSMS, 2005
+##                           V23                        V24
+## 1 Vital registration complete Latest agricultural census
+## 2                                                       
+## 3                         Yes                           
+## 4                                                       
+## 5                                                1964-65
+## 6                         Yes                       1998
+##                      V25               V26                          V27
+## 1 Latest industrial data Latest trade data Latest water withdrawal data
+## 2                                     2008                             
+## 3                                     2006                             
+## 4                                     2008                         2000
+## 5                                     1991                         2000
+## 6                   2005              2008                         2000
+##            V28       V29         V30         V31
+## 1 2-alpha code WB-2 code  Table Name  Short Name
+## 2           AW        AW       Aruba       Aruba
+## 3           AD        AD     Andorra     Andorra
+## 4           AF        AF Afghanistan Afghanistan
+## 5           AO        AO      Angola      Angola
+## 6           AL        AL     Albania     Albania
+## 
+## > tail(RAWedu)
+##      V1                               V2                  V3
+## 230 WSM                            Samoa Lower middle income
+## 231 YEM                Republic of Yemen Lower middle income
+## 232 ZAF         Republic of South Africa Upper middle income
+## 233 ZAR Democratic Republic of the Congo          Low income
+## 234 ZMB               Republic of Zambia          Low income
+## 235 ZWE             Republic of Zimbabwe          Low income
+##                             V4    V5   V6                 V7   V8
+## 230        East Asia & Pacific   IDA             Samoan tala 2006
+## 231 Middle East & North Africa   IDA             Yemeni rial 2004
+## 232         Sub-Saharan Africa  IBRD      South African rand 2001
+## 233         Sub-Saharan Africa   IDA HIPC    Congolese franc 1984
+## 234         Sub-Saharan Africa   IDA HIPC     Zambian kwacha 2000
+## 235         Sub-Saharan Africa Blend         Zimbabwe dollar 2002
+##               V9
+## 230             
+## 231   MICS, 2006
+## 232    DHS, 2003
+## 233     DHS 2007
+## 234    DHS, 2007
+## 235 DHS, 2005/06
+##                                                                             V10
+## 230                                                                            
+## 231                                                                            
+## 232 Fiscal year end: March 31; reporting period for national accounts data: CY.
+## 233                                                                            
+## 234                                                                            
+## 235  Fiscal year end: June 30; reporting period for national accounts data: CY.
+##      V11 V12  V13 V14        V15  V16  V17         V18     V19
+## 230 2002          VAB                 BPM5 Preliminary General
+## 231 1990          VAP    1990-96 2005 BPM5      Actual General
+## 232 2000     1993 VAB            2005 BPM5 Preliminary General
+## 233 1987     1993 VAB    1999-01 2005 BPM5    Estimate Special
+## 234 1994          VAB    1990-92 2005 BPM5 Preliminary General
+## 235 1990          VAB 1991, 1998 2005 BPM5      Actual General
+##              V20  V21            V22 V23  V24  V25  V26  V27 V28 V29
+## 230                                      1999      2008       WS  WS
+## 231    Budgetary GDDS    ES/BS, 2005     2002 2005 2008 2000  YE  RY
+## 232 Consolidated SDDS    ES/BS, 2000     2000 2005 2008 2000  ZA  ZA
+## 233 Consolidated GDDS 1-2-3, 2005-06     1990      1986 2000  CD  ZR
+## 234    Budgetary GDDS   IHS, 2004-05     1990      2008 2000  ZM  ZM
+## 235 Consolidated GDDS                    1960 1995 2008 2002  ZW  ZW
+##                  V30             V31
+## 230            Samoa           Samoa
+## 231      Yemen, Rep.           Yemen
+## 232     South Africa    South Africa
+## 233 Congo, Dem. Rep. Dem. Rep. Congo
+## 234           Zambia          Zambia
+## 235         Zimbabwe        Zimbabwe
+## 
+## > EDU <- RAWedu
+## 
+## > colnames(EDU) <- EDU[1, ]
+## 
+## > EDU <- EDU[-1, ]
+## 
+## > names(EDU) <- tolower(names(EDU))
+## 
+## > names(EDU)
+##  [1] "countrycode"                                      
+##  [2] "long name"                                        
+##  [3] "income group"                                     
+##  [4] "region"                                           
+##  [5] "lending category"                                 
+##  [6] "other groups"                                     
+##  [7] "currency unit"                                    
+##  [8] "latest population census"                         
+##  [9] "latest household survey"                          
+## [10] "special notes"                                    
+## [11] "national accounts base year"                      
+## [12] "national accounts reference year"                 
+## [13] "system of national accounts"                      
+## [14] "sna price valuation"                              
+## [15] "alternative conversion factor"                    
+## [16] "ppp survey year"                                  
+## [17] "balance of payments manual in use"                
+## [18] "external debt reporting status"                   
+## [19] "system of trade"                                  
+## [20] "government accounting concept"                    
+## [21] "imf data dissemination standard"                  
+## [22] "source of most recent income and expenditure data"
+## [23] "vital registration complete"                      
+## [24] "latest agricultural census"                       
+## [25] "latest industrial data"                           
+## [26] "latest trade data"                                
+## [27] "latest water withdrawal data"                     
+## [28] "2-alpha code"                                     
+## [29] "wb-2 code"                                        
+## [30] "table name"                                       
+## [31] "short name"                                       
+## 
+## > str(EDU)
+## 'data.frame':	234 obs. of  31 variables:
+##  $ countrycode                                      : chr  "ABW" "ADO" "AFG" "AGO" ...
+##  $ long name                                        : chr  "Aruba" "Principality of Andorra" "Islamic State of Afghanistan" "People's Republic of Angola" ...
+##  $ income group                                     : chr  "High income: nonOECD" "High income: nonOECD" "Low income" "Lower middle income" ...
+##  $ region                                           : chr  "Latin America & Caribbean" "Europe & Central Asia" "South Asia" "Sub-Saharan Africa" ...
+##  $ lending category                                 : chr  "" "" "IDA" "IDA" ...
+##  $ other groups                                     : chr  "" "" "HIPC" "" ...
+##  $ currency unit                                    : chr  "Aruban florin" "Euro" "Afghan afghani" "Angolan kwanza" ...
+##  $ latest population census                         : chr  "2000" "Register based" "1979" "1970" ...
+##  $ latest household survey                          : chr  "" "" "MICS, 2003" "MICS, 2001, MIS, 2006/07" ...
+##  $ special notes                                    : chr  "" "" "Fiscal year end: March 20; reporting period for national accounts data: FY." "" ...
+##  $ national accounts base year                      : chr  "1995" "" "2002/2003" "1997" ...
+##  $ national accounts reference year                 : chr  "" "" "" "" ...
+##  $ system of national accounts                      : chr  "" "" "" "" ...
+##  $ sna price valuation                              : chr  "" "" "VAB" "VAP" ...
+##  $ alternative conversion factor                    : chr  "" "" "" "1991-96" ...
+##  $ ppp survey year                                  : chr  "" "" "" "2005" ...
+##  $ balance of payments manual in use                : chr  "" "" "" "BPM5" ...
+##  $ external debt reporting status                   : chr  "" "" "Actual" "Actual" ...
+##  $ system of trade                                  : chr  "Special" "General" "General" "Special" ...
+##  $ government accounting concept                    : chr  "" "" "Consolidated" "" ...
+##  $ imf data dissemination standard                  : chr  "" "" "GDDS" "GDDS" ...
+##  $ source of most recent income and expenditure data: chr  "" "" "" "IHS, 2000" ...
+##  $ vital registration complete                      : chr  "" "Yes" "" "" ...
+##  $ latest agricultural census                       : chr  "" "" "" "1964-65" ...
+##  $ latest industrial data                           : chr  "" "" "" "" ...
+##  $ latest trade data                                : chr  "2008" "2006" "2008" "1991" ...
+##  $ latest water withdrawal data                     : chr  "" "" "2000" "2000" ...
+##  $ 2-alpha code                                     : chr  "AW" "AD" "AF" "AO" ...
+##  $ wb-2 code                                        : chr  "AW" "AD" "AF" "AO" ...
+##  $ table name                                       : chr  "Aruba" "Andorra" "Afghanistan" "Angola" ...
+##  $ short name                                       : chr  "Aruba" "Andorra" "Afghanistan" "Angola" ...
+## 
+## > EDU$iso3.countrycode <- countrycode(EDU$`short name`, 
+## +     "country.name", "iso3c")
+## 
+## > EDU$iso3.countrycode[which(EDU$countrycode == "KSV")] <- "KSV"
+## 
+## > EDU$iso3.countrycode[which(EDU$countrycode == "CHI")] <- "CHI"
+## 
+## > EDU$iso3.countrycode[which(EDU$countrycode == "STP")] <- "STP"
+## 
+## > EduNoCountryCode <- EDU[is.na(EDU$iso3.countrycode) == 
+## +     TRUE, ]
+## 
+## > EDU <- EDU[is.na(EDU$iso3.countrycode) == FALSE, ]
+## 
+## > dim(RAWedu)
+## [1] 235  31
+## 
+## > dim(EDU)
+## [1] 211  32
+## 
+## > dim(EduNoCountryCode)
+## [1] 23 32
+## 
+## > write.csv(EDU, "EDU_Final.csv")
+## 
+## > write.csv(EduNoCountryCode, "EDUNoCountryCode.csv")
+```
 
 
 ## Including Plots

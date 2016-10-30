@@ -1,5 +1,6 @@
 ---
-title: "A understanding of countries GDP in respect to its educational data"
+title: " Understanding the relationship between Education and GDP."
+subtitle: "Using World Bank Education Stats to Gross Domestic Product data"
 author: "Gino Varghese"
 date: "October 25, 2016"
 output: 
@@ -14,7 +15,7 @@ output:
 
 * First set of data contains Gross Domestic Product which is comprised of 2012 GDP values for 190 countries throughout the world. More recent data is hosted on Worldbank.org.     
     + http://data.worldbank.org/data-catalog/GDP-ranking-table
-* Second contains educational data of these countries more.       
+* Second contains World Bank Education Stats data.       
     + http://data.worldbank.org/data-catalog/ed-stats
 <br>
 
@@ -47,7 +48,7 @@ sessionInfo()
 <br>
 <br>
 
-##### Now to start our analysis we need to first download the data sets        
+#### Now to start our analysis we need to first download the data sets        
 
 * **Gross Domestic Product download**         
     + This process downloads Gross Domestic Product data sets and renames it as "GDPbyCountry.csv"     
@@ -77,10 +78,11 @@ list.files()
     + The csv file is loaded into **Rawgdp** data frame          
         + the data frame is reviewed by using R commands such as: head, tail and str        
     + The **Rawgdp** is then loaded into **GDP** data frame to begin the tidying process          
-    + *_Tidying process_*            
+    + **Tidying process**            
         + We modified the **GDP** data frame as follows:
             + V[n] column headers are removed        
-            + Unwanted space between column header and data is removed        
+            + Unwanted space between column header and data is removed    
+            + Empty columns with no data are removed
             + column names are renamed to lower case
             + "us dollars)" column name is renamed to us.dollars
             + ISO3.CountryCode are generated for each row and stored in iso3.countrycode
@@ -95,15 +97,40 @@ list.files()
                 + Tidy GDP data : 214 rows  
     + Tidy data is then written to **"GDP_Final.csv"** file, to facilitate analysis.
                 
-                
-            
-    
 
-```{r eduloadandreview, cache=TRUE, echo=TRUE}
+```{r gdploadandreview, cache=TRUE, echo=TRUE}
 source("Cleanup_GDP.R", echo = TRUE)
 
 ```
 
+<br>          
+
+* **World Bank EdStats is loaded into R**        
+    + The csv file is loaded into **Rawedu** data frame          
+        + the data frame is reviewed by using R commands such as: head, tail and str        
+    + The **Rawedu** is then loaded into **EDU** data frame to begin the tidying process          
+    + **Tidying process**           
+        + We modified the **EDU** data frame as follows:
+            + V[n] column headers are removed        
+            + Unwanted space between column header and data is removed    
+            + Empty columns with no data are removed
+            + column names are renamed to lower case
+            + ISO3.CountryCode are generated for each row and stored in iso3.countrycode
+                + using countrycode package     
+            + "Kosovo", "Channel Islands" and "Sodom and Principe" iso3 country codes are added to the data set
+            + Rows that are not related to any countries are moved to another data frame **EDUNoCountryCode**      
+                + these data sets are also removed from **EDU** data frame     
+            + The final rows for each data frame are as follows:
+                + Raw EDU file : 331 rows      
+                + EDU data with NA : 23 rows      
+                + Tidy EDU data : 211 rows  
+    + Tidy data is then written to **"EDU_Final.csv"** file, to facilitate analysis.
+                
+
+```{r eduloadandreview, cache=TRUE, echo=TRUE}
+source("Cleanup_EDU.R", echo = TRUE)
+
+```
 
 
 ## Including Plots
