@@ -7,25 +7,104 @@ output:
     keep_md: true
 ---
 
-```{r setup, include=FALSE}
+## Introdution
+<br>     
+
+#### For this analysis we will look at two different data sets      
+
+* First set of data contains Gross Domestic Product which is comprised of 2012 GDP values for 190 countries throughout the world. More recent data is hosted on Worldbank.org.     
+    + http://data.worldbank.org/data-catalog/GDP-ranking-table
+* Second contains educational data of these countries more.       
+    + http://data.worldbank.org/data-catalog/ed-stats
+<br>
+
+Our goal is to make some educated assumptions by combining both the data sets, to see if there is any relationship between the access to education, progression, completion, literacy, teachers, population, and expenditures to a givens countries economic growth.
+
+The indicators cover the education cycle from pre-primary to vocational and tertiary education.
+together after tidying the raw files      
+
+<br>
+<br>
+
+#### Before we start our analysis, we set the following:                
+
+* set working directory          
+* install necessary packages       
+* R version     
+
+```{r setup, include=TRUE, message=FALSE, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "~/git/MSDS6306/CaseStudy01/Analysis/Data")
 require(knitr)
 require(dplyr)
 require(plyr)
 require(ggplot2)
 require(downloader)
+require(countrycode)
+sessionInfo()
+```
+
+<br>
+<br>
+
+##### Now to start our analysis we need to first download the data sets        
+
+* **Gross Domestic Product download**         
+    + This process downloads Gross Domestic Product data sets and renames it as "GDPbyCountry.csv"     
+    + Downloaded file are listed below in Data directory        
+```{r gdpdownload, cache=TRUE,echo=TRUE}
+source("downloadGDP.R", echo = TRUE)
+list.files()
+```        
+
+<br>        
+
+* **Education data download**      
+    + This process downloads Education data set and renames it as "EDUbyCountry.csv"          
+    + Downloaded file are listed below  in Data directory         
+```{r edudownload, cache=TRUE, echo=TRUE}
+source("downloadEDU.R", echo = TRUE)
+list.files()
+```
+
+<br>
+<br>         
+
+##### Once the data is dowloaded to the projects "Data"  directory, it is ready to be imported into the R as a data frame. Once importation, the data frame is observed for internal structure details and beginning and ending rows, to determine what actions should be taken when tidying the data.        
+<br>          
+
+* **Gross Domestic Product is loaded into R**        
+    + The csv file is loaded into **Rawgdp** data frame          
+        + the data frame is reviewed by using R commands such as: head, tail and str        
+    + The **Rawgdp** is then loaded into **GDP** data frame to begin the tidying process          
+    + *_Tidying process_*            
+        + We modified the **GDP** data frame as follows:
+            + V[n] column headers are removed        
+            + Unwanted space between column header and data is removed        
+            + column names are renamed to lower case
+            + "us dollars)" column name is renamed to us.dollars
+            + ISO3.CountryCode are generated for each row and stored in iso3.countrycode
+                + using countrycode package     
+            + "Kosovo", "Channel Islands" and "Sodom and Principe" iso3 country codes are added to the data set
+            + The us.dollars column is converted into numeric, removing "," from the dollars and "NA" rows are converted to "0"
+            + Rows that are not related to any countries are moved to another data frame **GDPNoCountryCode**      
+                + these data sets are also removed from **GDP** data frame     
+            + The final rows for each data frame are as follows:
+                + Raw GDP file : 331 rows      
+                + GDP data with NA : 112 rows      
+                + Tidy GDP data : 214 rows  
+    + Tidy data is then written to **"GDP_Final.csv"** file, to facilitate analysis.
+                
+                
+            
+    
+
+```{r eduloadandreview, cache=TRUE, echo=TRUE}
+source("Cleanup_GDP.R", echo = TRUE)
+
 ```
 
 
-## Introdution
-
-In this analysis we will look at two different data setsThis is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
 
 ## Including Plots
 

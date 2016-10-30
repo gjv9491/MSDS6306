@@ -124,18 +124,268 @@ $(document).ready(function () {
 </div>
 
 
-<div id="introudtion" class="section level2">
-<h2>Introudtion</h2>
-<p>In this analysis we will look at two different data setsThis is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
-<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
-<pre class="r"><code>summary(cars)</code></pre>
-<pre><code>##      speed           dist       
-##  Min.   : 4.0   Min.   :  2.00  
-##  1st Qu.:12.0   1st Qu.: 26.00  
-##  Median :15.0   Median : 36.00  
-##  Mean   :15.4   Mean   : 42.98  
-##  3rd Qu.:19.0   3rd Qu.: 56.00  
-##  Max.   :25.0   Max.   :120.00</code></pre>
+<div id="introdution" class="section level2">
+<h2>Introdution</h2>
+<p><br></p>
+<div id="for-this-analysis-we-will-look-at-two-different-data-sets" class="section level4">
+<h4>For this analysis we will look at two different data sets</h4>
+<ul>
+<li>First set of data contains Gross Domestic Product which is comprised of 2012 GDP values for 190 countries throughout the world. More recent data is hosted on Worldbank.org.
+<ul>
+<li><a href="http://data.worldbank.org/data-catalog/GDP-ranking-table" class="uri">http://data.worldbank.org/data-catalog/GDP-ranking-table</a></li>
+</ul></li>
+<li>Second contains educational data of these countries more.
+<ul>
+<li><a href="http://data.worldbank.org/data-catalog/ed-stats" class="uri">http://data.worldbank.org/data-catalog/ed-stats</a> <br></li>
+</ul></li>
+</ul>
+<p>Our goal is to make some educated assumptions by combining both the data sets, to see if there is any relationship between the access to education, progression, completion, literacy, teachers, population, and expenditures to a givens countries economic growth.</p>
+<p>The indicators cover the education cycle from pre-primary to vocational and tertiary education. together after tidying the raw files</p>
+<p><br> <br></p>
+</div>
+<div id="before-we-start-our-analysis-we-set-the-following" class="section level4">
+<h4>Before we start our analysis, we set the following:</h4>
+<ul>
+<li>set working directory<br />
+</li>
+<li>install necessary packages<br />
+</li>
+<li>R version</li>
+</ul>
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = &quot;~/git/MSDS6306/CaseStudy01/Analysis/Data&quot;)
+require(knitr)
+require(dplyr)
+require(plyr)
+require(ggplot2)
+require(downloader)
+require(countrycode)
+sessionInfo()</code></pre>
+<pre><code>## R version 3.2.3 (2015-12-10)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 16.04.1 LTS
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] countrycode_0.18 downloader_0.4   ggplot2_2.1.0    plyr_1.8.4      
+## [5] dplyr_0.5.0      knitr_1.14      
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_0.12.7      digest_0.6.10    assertthat_0.1   grid_3.2.3      
+##  [5] R6_2.2.0         gtable_0.2.0     DBI_0.5-1        formatR_1.4     
+##  [9] magrittr_1.5     scales_0.4.0     evaluate_0.10    stringi_1.1.2   
+## [13] rmarkdown_1.1    tools_3.2.3      stringr_1.1.0    munsell_0.4.3   
+## [17] yaml_2.1.13      colorspace_1.2-7 htmltools_0.3.5  tibble_1.2</code></pre>
+<p><br> <br></p>
+<div id="now-to-start-our-analysis-we-need-to-first-download-the-data-sets" class="section level5">
+<h5>Now to start our analysis we need to first download the data sets</h5>
+<ul>
+<li><strong>Gross Domestic Product download</strong>
+<ul>
+<li>This process downloads Gross Domestic Product data sets and renames it as “GDPbyCountry.csv”<br />
+</li>
+<li>Downloaded file are listed below in Data directory</li>
+</ul></li>
+</ul>
+<pre class="r"><code>source(&quot;downloadGDP.R&quot;, echo = TRUE)</code></pre>
+<pre><code>## 
+## &gt; gdpurl &lt;- &quot;https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv&quot;
+## 
+## &gt; download.file(gdpurl, destfile = &quot;GDPbyCountry.csv&quot;, 
+## +     quiet = TRUE)</code></pre>
+<pre class="r"><code>list.files()</code></pre>
+<pre><code>## [1] &quot;Cleanup_EDU.R&quot;    &quot;Cleanup_GDP.R&quot;    &quot;downloadEDU.R&quot;   
+## [4] &quot;downloadGDP.R&quot;    &quot;GDPbyCountry.csv&quot; &quot;removeObjects.R&quot;</code></pre>
+<p><br></p>
+<ul>
+<li><strong>Education data download</strong>
+<ul>
+<li>This process downloads Education data set and renames it as “EDUbyCountry.csv”<br />
+</li>
+<li>Downloaded file are listed below in Data directory</li>
+</ul></li>
+</ul>
+<pre class="r"><code>source(&quot;downloadEDU.R&quot;, echo = TRUE)</code></pre>
+<pre><code>## 
+## &gt; eduurl &lt;- &quot;https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv&quot;
+## 
+## &gt; download.file(eduurl, destfile = &quot;EDUbyCountry.csv&quot;, 
+## +     quiet = TRUE)</code></pre>
+<pre class="r"><code>list.files()</code></pre>
+<pre><code>## [1] &quot;Cleanup_EDU.R&quot;    &quot;Cleanup_GDP.R&quot;    &quot;downloadEDU.R&quot;   
+## [4] &quot;downloadGDP.R&quot;    &quot;EDUbyCountry.csv&quot; &quot;GDPbyCountry.csv&quot;
+## [7] &quot;removeObjects.R&quot;</code></pre>
+<p><br> <br></p>
+</div>
+<div id="once-the-data-is-dowloaded-to-the-projects-data-directory-it-is-ready-to-be-imported-into-the-r-as-a-data-frame.-once-importation-the-data-frame-is-observed-for-internal-structure-details-and-beginning-and-ending-rows-to-determine-what-actions-should-be-taken-when-tidying-the-data." class="section level5">
+<h5>Once the data is dowloaded to the projects “Data” directory, it is ready to be imported into the R as a data frame. Once importation, the data frame is observed for internal structure details and beginning and ending rows, to determine what actions should be taken when tidying the data.</h5>
+<p><br></p>
+<ul>
+<li><strong>Gross Domestic Product is loaded into R</strong>
+<ul>
+<li>The csv file is loaded into <strong>Rawgdp</strong> data frame
+<ul>
+<li>the data frame is reviewed by using R commands such as: head, tail and str<br />
+</li>
+</ul></li>
+<li>The <strong>Rawgdp</strong> is then loaded into <strong>GDP</strong> data frame to begin the tidying process<br />
+</li>
+<li><em><em>Tidying process</em></em>
+<ul>
+<li>We modified the <strong>GDP</strong> data frame as follows:
+<ul>
+<li>V[n] column headers are removed<br />
+</li>
+<li>Unwanted space between column header and data is removed<br />
+</li>
+<li>column names are renamed to lower case</li>
+<li>“us dollars)” column name is renamed to us.dollars</li>
+<li>ISO3.CountryCode are generated for each row and stored in iso3.countrycode
+<ul>
+<li>using countrycode package<br />
+</li>
+</ul></li>
+<li>“Kosovo”, “Channel Islands” and “Sodom and Principe” iso3 country codes are added to the data set</li>
+<li>The us.dollars column is converted into numeric, removing “,” from the dollars and “NA” rows are converted to “0”</li>
+<li>Rows that are not related to any countries are moved to another data frame <strong>GDPNoCountryCode</strong>
+<ul>
+<li>these data sets are also removed from <strong>GDP</strong> data frame<br />
+</li>
+</ul></li>
+<li>The final rows for each data frame are as follows:
+<ul>
+<li>Raw GDP file : 331 rows<br />
+</li>
+<li>GDP data with NA : 112 rows<br />
+</li>
+<li>Tidy GDP data : 214 rows<br />
+</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>Tidy data is then written to <strong>“GDP_Final.csv”</strong> file, to facilitate analysis.</li>
+</ul></li>
+</ul>
+<pre class="r"><code>source(&quot;Cleanup_GDP.R&quot;, echo = TRUE)</code></pre>
+<pre><code>## 
+## &gt; RAWgdp &lt;- read.csv(&quot;GDPbyCountry.csv&quot;, header = FALSE, 
+## +     stringsAsFactors = FALSE)
+## 
+## &gt; str(RAWgdp)
+## 'data.frame':    331 obs. of  10 variables:
+##  $ V1 : chr  &quot;&quot; &quot;&quot; &quot;&quot; &quot;&quot; ...
+##  $ V2 : chr  &quot;Gross domestic product 2012&quot; &quot;&quot; &quot;&quot; &quot;Ranking&quot; ...
+##  $ V3 : logi  NA NA NA NA NA NA ...
+##  $ V4 : chr  &quot;&quot; &quot;&quot; &quot;&quot; &quot;Economy&quot; ...
+##  $ V5 : chr  &quot;&quot; &quot;&quot; &quot;(millions of&quot; &quot;US dollars)&quot; ...
+##  $ V6 : chr  &quot;&quot; &quot;&quot; &quot;&quot; &quot;&quot; ...
+##  $ V7 : logi  NA NA NA NA NA NA ...
+##  $ V8 : logi  NA NA NA NA NA NA ...
+##  $ V9 : logi  NA NA NA NA NA NA ...
+##  $ V10: logi  NA NA NA NA NA NA ...
+## 
+## &gt; head(RAWgdp)
+##    V1                          V2 V3            V4           V5 V6 V7 V8
+## 1     Gross domestic product 2012 NA                               NA NA
+## 2                                 NA                               NA NA
+## 3                                 NA               (millions of    NA NA
+## 4                         Ranking NA       Economy  US dollars)    NA NA
+## 5                                 NA                               NA NA
+## 6 USA                           1 NA United States  16,244,600     NA NA
+##   V9 V10
+## 1 NA  NA
+## 2 NA  NA
+## 3 NA  NA
+## 4 NA  NA
+## 5 NA  NA
+## 6 NA  NA
+## 
+## &gt; tail(RAWgdp)
+##     V1 V2 V3 V4 V5 V6 V7 V8 V9 V10
+## 326       NA          NA NA NA  NA
+## 327       NA          NA NA NA  NA
+## 328       NA          NA NA NA  NA
+## 329       NA          NA NA NA  NA
+## 330       NA          NA NA NA  NA
+## 331       NA          NA NA NA  NA
+## 
+## &gt; GDP &lt;- RAWgdp
+## 
+## &gt; for (i in 1:3) {
+## +     GDP &lt;- GDP[-1, ]
+## +     cat(&quot;remove rows: &quot;, i, &quot;\n&quot;)
+## + }
+## remove rows:  1 
+## remove rows:  2 
+## remove rows:  3 
+## 
+## &gt; colnames(GDP) &lt;- GDP[1, ]
+## 
+## &gt; GDP &lt;- GDP[-1, ]
+## 
+## &gt; GDP &lt;- GDP[-1, ]
+## 
+## &gt; names(GDP) &lt;- tolower(names(GDP))
+## 
+## &gt; names(GDP)[1] &lt;- &quot;countrycode&quot;
+## 
+## &gt; names(GDP)[names(GDP) == &quot;us dollars)&quot;] &lt;- &quot;us.dollars&quot;
+## 
+## &gt; str(GDP)
+## 'data.frame':    326 obs. of  10 variables:
+##  $ countrycode: chr  &quot;USA&quot; &quot;CHN&quot; &quot;JPN&quot; &quot;DEU&quot; ...
+##  $ ranking    : chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
+##  $ na         : logi  NA NA NA NA NA NA ...
+##  $ economy    : chr  &quot;United States&quot; &quot;China&quot; &quot;Japan&quot; &quot;Germany&quot; ...
+##  $ us.dollars : chr  &quot; 16,244,600 &quot; &quot; 8,227,103 &quot; &quot; 5,959,718 &quot; &quot; 3,428,131 &quot; ...
+##  $            : chr  &quot;&quot; &quot;&quot; &quot;&quot; &quot;&quot; ...
+##  $ na         : logi  NA NA NA NA NA NA ...
+##  $ na         : logi  NA NA NA NA NA NA ...
+##  $ na         : logi  NA NA NA NA NA NA ...
+##  $ na         : logi  NA NA NA NA NA NA ...
+## 
+## &gt; GDP$iso3.countrycode &lt;- countrycode(GDP$economy, &quot;country.name&quot;, 
+## +     &quot;iso3c&quot;)
+## 
+## &gt; GDP$iso3.countrycode[which(GDP$countrycode == &quot;KSV&quot;)] &lt;- &quot;KSV&quot;
+## 
+## &gt; GDP$iso3.countrycode[which(GDP$countrycode == &quot;CHI&quot;)] &lt;- &quot;CHI&quot;
+## 
+## &gt; GDP$iso3.countrycode[which(GDP$countrycode == &quot;STP&quot;)] &lt;- &quot;STP&quot;
+## 
+## &gt; GDPNoCountryCode &lt;- GDP[is.na(GDP$iso3.countrycode) == 
+## +     TRUE, ]
+## 
+## &gt; GDP &lt;- GDP[is.na(GDP$iso3.countrycode) == FALSE, ]
+## 
+## &gt; GDP &lt;- GDP[, colSums(is.na(GDP)) == 0]
+## 
+## &gt; GDP$us.dollars &lt;- as.numeric(gsub(&quot;[^[:digit:]]&quot;, 
+## +     &quot;&quot;, GDP$us.dollars))
+## 
+## &gt; GDP$us.dollars[which(is.na(GDP$us.dollars) == TRUE)] &lt;- 0
+## 
+## &gt; dim(GDP)
+## [1] 214   6
+## 
+## &gt; dim(GDPNoCountryCode)
+## [1] 112  11
+## 
+## &gt; write.csv(GDP, &quot;GDP_Final.csv&quot;)
+## 
+## &gt; write.csv(GDPNoCountryCode, &quot;GDPNoCountryCode.csv&quot;)</code></pre>
+</div>
+</div>
 </div>
 <div id="including-plots" class="section level2">
 <h2>Including Plots</h2>
