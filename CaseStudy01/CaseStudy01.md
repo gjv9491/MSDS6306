@@ -1,27 +1,29 @@
-#  Understanding the relationship between Income group and GDP.
+#  Understanding the relationship between Income group and Gross Domestic Product.
 Gino Varghese  
 October 25, 2016  
-
-## Introdution
 <br>     
+<br>             
 
-#### For this analysis we will look at two different data sets      
+## Introduction
+<br>            
 
-* First set of data contains Gross Domestic Product which is comprised of 2012 GDP values for 190 countries throughout the world. More recent data is hosted on Worldbank.org.     
+#### For this analysis two different data sets were used:             
+
+* First set of data contains Gross Domestic Product which is comprised of 2012 GDP values of 190 countries throughout the world. More recent data is hosted on Worldbank.org.     
     + http://data.worldbank.org/data-catalog/GDP-ranking-table
-* Second contains World Bank Education Stats data.       
+* Second set contains World Bank Education Stats data.       
     + http://data.worldbank.org/data-catalog/ed-stats
 <br>
 
-Our goal is to make some educated assumptions by combining both the data sets, to see if there is any relationship between the access to education, progression, completion, literacy, teachers, population, and expenditures boost's the countries income growth which will then lead to countries economic growth.
-
+Our goal is to make some educated assumptions by combining both data sets to see if there is any relationship between a country's income growth and its GDP.
+A country's income growth was assessed using variables such as access to education, its progression and completion, access to teachers, family expenditure, literacy, population etc(Provided by World Bank Education stats).             
 <br>
 <br>
 
-#### Before we start our analysis, we set the following:                
+#### The following was done before starting the analysis:                                
 
-* set working directory          
-* install necessary packages       
+* setting of working directory                  
+* installation and loading of necessary packages              
 * R version     
 
 
@@ -68,11 +70,11 @@ sessionInfo()
 <br>
 <br>
 
-#### Now to start our analysis we need to first download the data sets        
+#### The analysis was started by downloading the following data sets:                     
 
 * **Gross Domestic Product download**         
     + This process downloads Gross Domestic Product data sets and renames it as "GDPbyCountry.csv"     
-    + Downloaded file are listed below in Data directory        
+    + Downloaded files are listed below in Data directory        
 
 ```r
 source("downloadGDP.R", echo = TRUE)
@@ -99,7 +101,7 @@ list.files()
 
 * **Education data download**      
     + This process downloads Education data set and renames it as "EDUbyCountry.csv"          
-    + Downloaded file are listed below  in Data directory         
+    + Downloaded files are listed below  in Data directory         
 
 ```r
 source("downloadEDU.R", echo = TRUE)
@@ -126,31 +128,31 @@ list.files()
 <br>
 <br>         
 
-##### Once the data is dowloaded to the projects "Data"  directory, it is ready to be imported into the R as a data frame. Once importation, the data frame is observed for internal structure details and beginning and ending rows, to determine what actions should be taken when tidying the data.        
+##### Once the data was dowloaded to the project's "Data"  directory, it became ready to be imported into the R as a data frame. Once imported the data frame was observed for internal structure details and the beginning and ending of rows, to determine what actions should be taken when tidying the data.               
 <br>          
 
-* **Gross Domestic Product is loaded into R**        
-    + The csv file is loaded into **Rawgdp** data frame          
-        + the data frame is reviewed by using R commands such as: head, tail and str        
-    + The **Rawgdp** is then loaded into **GDP** data frame to begin the tidying process          
+* **Gross Domestic Product was loaded into R**        
+    + The csv file was loaded into **Rawgdp** data frame          
+        + The data frame was reviewed by using R commands such as: head, tail and str        
+    + The **Rawgdp** was then loaded into **GDP** data frame to begin the tidying process          
     + **Tidying process**            
-        + We modified the **GDP** data frame as follows:
-            + V[n] column headers are removed        
-            + Unwanted space between column header and data is removed    
-            + Empty columns with no data are removed
-            + column names are renamed to lower case
+        + The **GDP** data frame was modified as follows:       
+            + V[n] column headers were removed        
+            + Unwanted space between column header and data was removed    
+            + Empty columns with no data were removed
+            + Column names were renamed to lower case
             + "us dollars)" column name is renamed to us.dollars
-            + ISO3.CountryCode are generated for each row and stored in iso3.countrycode
+            + ISO3.CountryCode were generated for each row and stored in iso3.countrycode
                 + using countrycode package     
-            + "Kosovo", "Channel Islands" and "Sodom and Principe" iso3 country codes are added to the data set
-            + The us.dollars column is converted into numeric, removing "," from the dollars and "NA" rows are converted to "0"
-            + Rows that are not related to any countries are moved to another data frame **GDPNoCountryCode**      
-                + these data sets are also removed from **GDP** data frame     
+            + "Kosovo", "Channel Islands" and "Sodom and Principe" iso3 country codes were added to the data set
+            + The us.dollars column was converted into numeric, removing "," from the dollars and "NA" rows are converted to "0"
+            + Rows that are not related to any countries were moved to another data frame **GDPNoCountryCode**      
+                + These data sets were also removed from **GDP** data frame     
             + The final rows for each data frame are as follows:
                 + Raw GDP file : 331 rows      
                 + GDP data with NA : 112 rows      
                 + Tidy GDP data : 214 rows  
-    + Tidy data is then written to **"GDP_Final.csv"** file, to facilitate analysis.
+    + Tidy data was then written to **"GDP_Final.csv"** file to facilitate analysis.
                 
 
 
@@ -273,26 +275,26 @@ source("Cleanup_GDP.R", echo = TRUE)
 
 <br>          
 
-* **World Bank EdStats is loaded into R**        
-    + The csv file is loaded into **Rawedu** data frame          
-        + the data frame is reviewed by using R commands such as: head, tail and str        
-    + The **Rawedu** is then loaded into **EDU** data frame to begin the tidying process          
+* **World Bank EdStats was loaded into R**        
+    + The csv file was loaded into **Rawedu** data frame          
+        + The data frame was reviewed using R commands such as: head, tail and str           
+    + The **Rawedu**  was then loaded into **EDU** data frame to begin the tidying process          
     + **Tidying process**           
-        + We modified the **EDU** data frame as follows:
-            + V[n] column headers are removed        
-            + Unwanted space between column header and data is removed    
-            + Empty columns with no data are removed
-            + column names are renamed to lower case
-            + ISO3.CountryCode are generated for each row and stored in iso3.countrycode
+        + The **EDU** data frame was modified as follows:      
+            + V[n] column headers were removed        
+            + Unwanted space between column header and data was removed    
+            + Empty columns with no data were removed
+            + Column names were renamed to lower case
+            + ISO3.CountryCode were generated for each row and stored in iso3.countrycode
                 + using countrycode package     
-            + "Kosovo", "Channel Islands" and "Sodom and Principe" iso3 country codes are added to the data set
-            + Rows that are not related to any countries are moved to another data frame **EDUNoCountryCode**      
-                + these data sets are also removed from **EDU** data frame     
+            + "Kosovo", "Channel Islands" and "Sodom and Principe" iso3 country codes were added to the data set
+            + Rows that are not related to any countries were moved to another data frame **EDUNoCountryCode**      
+                + These data sets were also removed from **EDU** data frame     
             + The final rows for each data frame are as follows:
                 + Raw EDU file : 331 rows      
                 + EDU data with NA : 23 rows      
                 + Tidy EDU data : 211 rows  
-    + Tidy data is then written to **"EDU_Final.csv"** file, to facilitate analysis.
+    + Tidy data was then written to **"EDU_Final.csv"** file to facilitate analysis.
                 
 
 
@@ -680,12 +682,12 @@ str(EDU)
 <br>
 
 #### Merging GDP and EDU data
-The original data have been cleaned and only the columns of interest have been set aside for merging, GDP and EDU data are ready to be merged together. After merging the two data sets together by *iso3.countrycode*
+The original data was cleaned and only the columns of interest were set aside for merging. The two data sets were merged together by *iso3.countrycode*.        
 
 
 <br>
 
-#### Reduce to columns of interest       
+#### Reduction to columns of interest       
 * iso3.countrycode
 * "economy"
 * "ranking"
@@ -763,7 +765,7 @@ str(MergeGDPInc01)
 ##  $ gdp.usd     : int  2584 20497 114147 12648 348595 475502 9951 1134 1532408 394708 ...
 ```
 
-##### **There are 215 matching IDs. Once all 26 NAs are removed, there remain 189 matching country code IDs.**       
+##### **There are 215 matching IDs. Once all 26 NAs were removed, there remains 189 matching country code IDs.**       
 
 <br>
 <br>
@@ -812,12 +814,13 @@ mean(subset(MergeGDPInc01, income.group == "High income: nonOECD")$gdp.ranking) 
 <br>
 
 #### **Question 4:** Plot the GDP for all of the countries. Use ggplot2 to color your plot by Income.Group?
-<br>
+<br>        
+<br>       
 
 ```r
  ggplot(data = MergeGDPInc01, aes(x=income.group, y=(gdp.usd/10000), fill=income.group)) + 
   geom_boxplot(outlier.colour = "red", outlier.shape = 8, outlier.size = 2) +
-  ggtitle("GDP for All Countries by Income Group") +
+  ggtitle("Diagram 01. GDP for All Countries by Income Group") +
   labs(x="Income Group", y="(GDP/10,000) (US Dollars in Millions)") + theme(text = element_text(size=12),
         axis.text.x = element_text(angle=90, vjust=1)) 
 ```
@@ -826,27 +829,45 @@ mean(subset(MergeGDPInc01, income.group == "High income: nonOECD")$gdp.ranking) 
                          
 ##### **The first boxplot visualization depicts all *GDP (US Dollars in million)* data by *Income Group*.**             
 
-##### **The data appears heavily skewed and large outliers in *High income: OECD* and *Lower middle income* make it difficult to compare each distribution by *Income.Group*. Its best to log transform the data and then visualize the box plots**        
-<br>
+##### **The data appears heavily skewed and large outliers in *High income: OECD* and *Lower middle income* makes it difficult to compare each distribution by *Income.Group*. It's best to transform the data using log and then visualize the box plots**        
+<br>      
+<br>        
 
 ```r
  ggplot(data = MergeGDPInc01, aes(x=income.group, y=log(gdp.usd/10000), fill=income.group)) + 
   geom_boxplot(outlier.colour = "red", outlier.shape = 8, outlier.size = 2) +
-  ggtitle("Log of GDP for All Countries by Income Group") +
+  ggtitle("Diagram 02. Log of GDP for All Countries by Income Group") +
   labs(x="Income Group", y="Log of GDP (US Dollars in Millions)") + theme(text = element_text(size=12),
         axis.text.x = element_text(angle=90, vjust=1)) 
 ```
 
 ![](CaseStudy01_files/figure-html/[gdprankingplotgdplog-1.png)<!-- -->
-<br>      
+<br>       
+<br>
 
-##### **As soon as the data was log transformed, it was evident that most of the *High income: OECD* group data exceed the remaining groups' data in terms of GDP, It appears that *High income: nonOECD's* appears to be nearly identical to *Upper middle income's* **
+```r
+ ggplot(data = MergeGDPInc01, aes(x=log(gdp.usd/10000), y=income.group, group=income.group)) + 
+    stat_smooth(aes(colour=income.group))+
+  geom_point(aes(colour = income.group)) +
+  #geom_boxplot(outlier.colour = "red", outlier.shape = 8, outlier.size = 2) +
+  ggtitle("Diagram 03. Log of GDP for All Countries by Income Group") +
+  labs(x="Log of GDP (US Dollars in Millions)", y="Income Group") + theme(text = element_text(size=12),
+       axis.text.x = element_text(angle=90, vjust=1)) 
+```
+
+![](CaseStudy01_files/figure-html/[gdpeduscatter-1.png)<!-- -->
+<br>
+<br>
+
+##### **As soon as the data was log transformed (shown in diagram 02 & 03), it was evident that most of the *High income: OECD* group data exceeded the remaining groups' data in terms of GDP. It also appears that the *High income: nonOECD* group is nearly identical to the *Upper middle income's*. **
 
 <br>
 <br>
 
-#### **Question 5:** Cut the GDP ranking into 5 separate quantile groups. Make a table versus Income.Group. How many countries are lower middle income but among the 38 nations with the highest GDP?
-##### *ntile* function is used to split the GDP rankings into 5 separate quantile groups, this function is from the *dplyr* package. 
+#### **Question 5:** Cut the GDP ranking into 5 separate quantile groups. Make a table versus Income.Group. How many countries are lower middle income but among the 38 nations with the highest GDP?         
+<br>       
+
+##### **ntile** function is used to split the GDP rankings into 5 separate quantile groups, this function is from the *dplyr* package. 
 <br>
 
 ```r
@@ -878,7 +899,7 @@ sum(MergeQuantile[(nrow(MergeQuantile)-37):nrow(MergeQuantile),]$income.group ==
 ```
 <br>          
 
-##### **Based on the groupings, *Lower middle income* group are among the 38 nations with the highest GDP, especially 5 countries.**       
+##### **Based on the table, there are 5 countries that belong to the *Lower middle income* group which is among the 38 nations with the highest GDP.**            
 
 <br>
 <br>
@@ -886,3 +907,13 @@ sum(MergeQuantile[(nrow(MergeQuantile)-37):nrow(MergeQuantile),]$income.group ==
 
 #### Conclusion:      
 
+##### Once we combined the data sets together it became evident that there was lot more to be retrieved from this data. For the analysis we isolated income group from World Bank Education data set and compared it to selected columns of Gross Domestic Product data set. The aim was to understand if there is any relationship between the income group of a country to its GDP.       
+<br>      
+
+##### From the above analysis it became evident that countries with *Higher income and who are enrolled in Organisation for Economic Co-operation and Development (OECD)* have their average GDP higher than countries that have *Higher income and who are not enrolled in Organisation for Economic Co-operation and Development(nonOECD)*. This shows that the **Organisation for Economic Co-operation and Development (OECD)** program which stimulate economic progress and world trade is actually working. Furthermore one can see that average GDP of *Higher income and who are not enrolled in Organisation for Economic Co-operation and Development(nonOECD)* is similar to the average GDP of *Upper middle income* group.        
+<br>       
+
+##### But the key finding from this analysis is that five countries from the *Lower middle income* group also rank among the top thirty-eight countries with the highest GDP. This shows that there is no clear relationship between *Higher income* equates to *Higher GDP*, unless they are a part of organisations such as **Organisation for Economic Co-operation and Development (OECD)** which stimulates economic progress.
+<br>
+<br>
+<br>
