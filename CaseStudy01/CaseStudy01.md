@@ -1,4 +1,4 @@
-#  Understanding the relationship between Education and GDP.
+#  Understanding the relationship between Income group and GDP.
 Gino Varghese  
 October 25, 2016  
 
@@ -13,10 +13,7 @@ October 25, 2016
     + http://data.worldbank.org/data-catalog/ed-stats
 <br>
 
-Our goal is to make some educated assumptions by combining both the data sets, to see if there is any relationship between the access to education, progression, completion, literacy, teachers, population, and expenditures to a givens countries economic growth.
-
-The indicators cover the education cycle from pre-primary to vocational and tertiary education.
-together after tidying the raw files      
+Our goal is to make some educated assumptions by combining both the data sets, to see if there is any relationship between the access to education, progression, completion, literacy, teachers, population, and expenditures boost's the countries income growth which will then lead to countries economic growth.
 
 <br>
 <br>
@@ -596,11 +593,296 @@ source("Cleanup_EDU.R", echo = TRUE)
 ## > write.csv(EduNoCountryCode, "EDUNoCountryCode.csv")
 ```
 
+<br>                                      
+                                      
+* **Clearing existing objects**
 
-## Including Plots
+```r
+source("removeObjects.R", echo = TRUE)
+```
 
-You can also embed plots, for example:
+```
+## 
+## > remove(list = ls())
+```
+             
+<br>
 
-![](CaseStudy01_files/figure-html/pressure-1.png)<!-- -->
+* **Loading tidy data for analysis**
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```r
+#Load cleaned up csv file for GDP
+
+setwd("~/git/MSDS6306/CaseStudy01/Analysis")
+gdppath <- paste(getwd(),"/Data/GDP_Final.csv",sep = "")
+edupath <- paste(getwd(),"/Data/EDU_Final.csv",sep = "")
+
+#load and 
+GDP <- read.csv(gdppath,header=TRUE)
+names(GDP)[names(GDP)=="X"] <- "ID"
+str(GDP)
+```
+
+```
+## 'data.frame':	214 obs. of  7 variables:
+##  $ ID              : int  6 7 8 9 10 11 12 13 14 15 ...
+##  $ countrycode     : Factor w/ 214 levels "ABW","ADO","AFG",..: 201 37 96 49 63 67 27 162 93 87 ...
+##  $ ranking         : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ economy         : Factor w/ 214 levels "Afghanistan",..: 204 41 95 71 66 203 27 157 93 86 ...
+##  $ us.dollars      : int  16244600 8227103 5959718 3428131 2612878 2471784 2252664 2014775 2014670 1841710 ...
+##  $ Comments        : Factor w/ 7 levels "","Covers mainland Tanzania only",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ iso3.countrycode: Factor w/ 214 levels "ABW","AFG","AGO",..: 203 37 98 50 65 69 27 165 95 89 ...
+```
+
+```r
+EDU <- read.csv(edupath,header=TRUE)
+names(EDU)[names(EDU)=="X"] <- "ID"
+str(EDU)
+```
+
+```
+## 'data.frame':	211 obs. of  33 variables:
+##  $ ID                                               : int  2 3 4 5 6 7 8 9 10 11 ...
+##  $ countrycode                                      : Factor w/ 211 levels "ABW","ADO","AFG",..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ long.name                                        : Factor w/ 211 levels "American Samoa",..: 5 85 48 80 90 206 4 91 1 2 ...
+##  $ income.group                                     : Factor w/ 6 levels "","High income: nonOECD",..: 2 2 5 4 6 2 6 4 6 6 ...
+##  $ region                                           : Factor w/ 8 levels "","East Asia & Pacific",..: 4 3 7 8 3 5 4 3 2 4 ...
+##  $ lending.category                                 : Factor w/ 4 levels "","Blend","IBRD",..: 1 1 4 4 3 1 3 2 1 3 ...
+##  $ other.groups                                     : Factor w/ 3 levels "","Euro area",..: 1 1 3 1 1 1 1 1 1 1 ...
+##  $ currency.unit                                    : Factor w/ 155 levels "","Afghan afghani",..: 8 49 2 5 3 144 6 7 148 44 ...
+##  $ latest.population.census                         : Factor w/ 28 levels "","1970","1979",..: 17 28 3 2 18 22 18 18 17 18 ...
+##  $ latest.household.survey                          : Factor w/ 56 levels "","CPS (monthly)",..: 1 1 35 34 37 1 1 14 1 1 ...
+##  $ special.notes                                    : Factor w/ 48 levels "","A simple multiplier is used to convert the national currencies of EMU members to euros. The following irrevocable euro conversi"| __truncated__,..: 1 1 22 1 1 1 1 1 1 43 ...
+##  $ national.accounts.base.year                      : Factor w/ 43 levels "","1954","1973",..: 24 1 37 27 1 24 21 1 1 17 ...
+##  $ national.accounts.reference.year                 : int  NA NA NA NA 1996 NA NA 1996 NA NA ...
+##  $ system.of.national.accounts                      : int  NA NA NA NA 1993 NA 1993 1993 NA NA ...
+##  $ sna.price.valuation                              : Factor w/ 3 levels "","VAB","VAP": 1 1 2 3 2 2 2 2 1 2 ...
+##  $ alternative.conversion.factor                    : Factor w/ 33 levels "","1960-85","1965-84",..: 1 1 1 25 1 1 6 21 1 1 ...
+##  $ ppp.survey.year                                  : int  NA NA NA 2005 2005 NA 2005 2005 NA NA ...
+##  $ balance.of.payments.manual.in.use                : Factor w/ 3 levels "","BPM4","BPM5": 1 1 1 3 3 2 3 3 1 3 ...
+##  $ external.debt.reporting.status                   : Factor w/ 4 levels "","Actual","Estimate",..: 1 1 2 2 2 1 2 2 1 1 ...
+##  $ system.of.trade                                  : Factor w/ 3 levels "","General","Special": 3 2 2 3 2 2 3 3 1 2 ...
+##  $ government.accounting.concept                    : Factor w/ 3 levels "","Budgetary",..: 1 1 3 1 3 3 3 3 1 1 ...
+##  $ imf.data.dissemination.standard                  : Factor w/ 3 levels "","GDDS","SDDS": 1 1 2 2 2 2 3 3 1 2 ...
+##  $ source.of.most.recent.income.and.expenditure.data: Factor w/ 77 levels "","1-2-3, 2005-06",..: 1 1 1 35 66 1 45 46 1 1 ...
+##  $ vital.registration.complete                      : Factor w/ 2 levels "","Yes": 1 2 1 1 2 1 2 2 2 2 ...
+##  $ latest.agricultural.census                       : Factor w/ 45 levels "","1960","1964-65",..: 1 1 1 3 32 32 41 1 1 1 ...
+##  $ latest.industrial.data                           : int  NA NA NA NA 2005 NA 2001 NA NA NA ...
+##  $ latest.trade.data                                : int  2008 2006 2008 1991 2008 2008 2008 2008 NA 2007 ...
+##  $ latest.water.withdrawal.data                     : int  NA NA 2000 2000 2000 2005 2000 2000 NA 1990 ...
+##  $ X2.alpha.code                                    : Factor w/ 207 levels "","AD","AE","AF",..: 13 2 4 8 6 3 9 7 10 5 ...
+##  $ wb.2.code                                        : Factor w/ 208 levels "","AD","AE","AF",..: 13 2 4 8 6 3 9 7 10 5 ...
+##  $ table.name                                       : Factor w/ 211 levels "Afghanistan",..: 10 5 1 6 2 200 8 9 4 7 ...
+##  $ short.name                                       : Factor w/ 211 levels "Afghanistan",..: 10 5 1 6 2 200 8 9 4 7 ...
+##  $ iso3.countrycode                                 : Factor w/ 210 levels "ABW","AFG","AGO",..: 1 5 2 3 4 6 7 8 9 10 ...
+```
+<br>
+<br>
+
+#### Merging GDP and EDU data
+The original data have been cleaned and only the columns of interest have been set aside for merging, GDP and EDU data are ready to be merged together. After merging the two data sets together by *iso3.countrycode*
+
+
+<br>
+
+#### Reduce to columns of interest       
+* iso3.countrycode
+* "economy"
+* "ranking"
+* "income group"
+* "us.dollars"      
+
+
+```r
+names(MergeGDPInc)[names(MergeGDPInc)=="iso3.countrycode"] <- "country.code"
+names(MergeGDPInc)[names(MergeGDPInc)=="economy"] <- "country.name"
+names(MergeGDPInc)[names(MergeGDPInc)=="ranking"] <- "gdp.ranking"
+names(MergeGDPInc)[names(MergeGDPInc)=="income group"] <- "income.group"
+names(MergeGDPInc)[names(MergeGDPInc)=="us.dollars"] <- "gdp.usd"
+
+MergeGDPInc <- subset(MergeGDPInc,select = c("country.code","country.name","gdp.ranking","income.group","gdp.usd"))
+
+str(MergeGDPInc)
+```
+
+```
+## 'data.frame':	215 obs. of  5 variables:
+##  $ country.code: Factor w/ 214 levels "ABW","AFG","AGO",..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ country.name: Factor w/ 214 levels "Afghanistan",..: 10 1 6 2 5 202 8 9 4 7 ...
+##  $ gdp.ranking : int  161 105 60 125 NA 32 26 133 NA 172 ...
+##  $ income.group: Factor w/ 6 levels "","High income: nonOECD",..: 2 5 4 6 2 2 6 4 6 6 ...
+##  $ gdp.usd     : int  2584 20497 114147 12648 0 348595 475502 9951 0 1134 ...
+```
+            
+<br>
+<br>
+
+### Results:
+
+#### **Question 1:** Match the data based on the country shortcode. How many of the IDs match?
+<br>
+
+```r
+## how many of the IDs match?
+nrow(MergeGDPInc)
+```
+
+```
+## [1] 215
+```
+
+```r
+## how many of the rows contain NAs?
+sum(!complete.cases(MergeGDPInc))
+```
+
+```
+## [1] 26
+```
+
+```r
+## Remove rows with missing data
+MergeGDPInc01 <- MergeGDPInc[complete.cases(MergeGDPInc),]
+nrow(MergeGDPInc01) 
+```
+
+```
+## [1] 189
+```
+
+```r
+str(MergeGDPInc01)
+```
+
+```
+## 'data.frame':	189 obs. of  5 variables:
+##  $ country.code: Factor w/ 214 levels "ABW","AFG","AGO",..: 1 2 3 4 6 7 8 10 11 12 ...
+##  $ country.name: Factor w/ 214 levels "Afghanistan",..: 10 1 6 2 202 8 9 7 11 12 ...
+##  $ gdp.ranking : int  161 105 60 125 32 26 133 172 12 27 ...
+##  $ income.group: Factor w/ 6 levels "","High income: nonOECD",..: 2 5 4 6 2 6 4 6 3 3 ...
+##  $ gdp.usd     : int  2584 20497 114147 12648 348595 475502 9951 1134 1532408 394708 ...
+```
+
+##### **There are 215 matching IDs. Once all 26 NAs are removed, there remain 189 matching country code IDs.**       
+
+<br>
+<br>
+
+#### **Question 2:** Sort the data frame in ascending order by GDP (so United States is last). What is the 13th country in the resulting data frame?
+<br>
+
+```r
+MergeGDPInc01 <- MergeGDPInc01[order(MergeGDPInc01$gdp.usd, decreasing = FALSE),] # Sort the data by GDP
+MergeGDPInc01$country.name[13]
+```
+
+```
+## [1] St. Kitts and Nevis
+## 214 Levels: Afghanistan Albania Algeria American Samoa Andorra ... Zimbabwe
+```
+                   
+##### **St. Kitts and Nevis is the 13th country in the data frame**            
+
+<br>
+<br>
+
+#### **Question 3:** What are the average GDP rankings for the "High income: OECD" and "High income: nonOECD" groups?
+<br>
+
+```r
+mean(subset(MergeGDPInc01, income.group == "High income: OECD")$gdp.ranking)    # Mean High income: OECD rank
+```
+
+```
+## [1] 32.96667
+```
+
+```r
+mean(subset(MergeGDPInc01, income.group == "High income: nonOECD")$gdp.ranking) # Mean High income: nonOECD rank
+```
+
+```
+## [1] 91.91304
+```
+       
+##### **Average *High income: OECD* GDP ranking is 32.96667.**
+##### **Average *High income: nonOECD* GDP ranking is 91.91304.**
+
+<br>
+<br>
+
+#### **Question 4:** Plot the GDP for all of the countries. Use ggplot2 to color your plot by Income.Group?
+<br>
+
+```r
+ ggplot(data = MergeGDPInc01, aes(x=income.group, y=(gdp.usd/10000), fill=income.group)) + 
+  geom_boxplot(outlier.colour = "red", outlier.shape = 8, outlier.size = 2) +
+  ggtitle("GDP for All Countries by Income Group") +
+  labs(x="Income Group", y="(GDP/10,000) (US Dollars in Millions)") + theme(text = element_text(size=12),
+        axis.text.x = element_text(angle=90, vjust=1)) 
+```
+
+![](CaseStudy01_files/figure-html/[gdprankingplotgdp-1.png)<!-- -->
+                         
+##### **The first boxplot visualization depicts all *GDP (US Dollars in million)* data by *Income Group*.**             
+
+##### **The data appears heavily skewed and large outliers in *High income: OECD* and *Lower middle income* make it difficult to compare each distribution by *Income.Group*. Its best to log transform the data and then visualize the box plots**        
+<br>
+
+```r
+ ggplot(data = MergeGDPInc01, aes(x=income.group, y=log(gdp.usd/10000), fill=income.group)) + 
+  geom_boxplot(outlier.colour = "red", outlier.shape = 8, outlier.size = 2) +
+  ggtitle("Log of GDP for All Countries by Income Group") +
+  labs(x="Income Group", y="Log of GDP (US Dollars in Millions)") + theme(text = element_text(size=12),
+        axis.text.x = element_text(angle=90, vjust=1)) 
+```
+
+![](CaseStudy01_files/figure-html/[gdprankingplotgdplog-1.png)<!-- -->
+<br>      
+
+##### **As soon as the data was log transformed, it was evident that most of the *High income: OECD* group data exceed the remaining groups' data in terms of GDP, It appears that *High income: nonOECD's* appears to be nearly identical to *Upper middle income's* **
+
+<br>
+<br>
+
+#### **Question 5:** Cut the GDP ranking into 5 separate quantile groups. Make a table versus Income.Group. How many countries are lower middle income but among the 38 nations with the highest GDP?
+##### *ntile* function is used to split the GDP rankings into 5 separate quantile groups, this function is from the *dplyr* package. 
+<br>
+
+```r
+MergeQuantile <- MergeGDPInc01
+MergeQuantile$gdp.quantile <- ntile(MergeQuantile$gdp.ranking, 5) # Add 5 quantiles by Country.Rank to new GDP.Quantile column
+
+## Generate table by Income.Group output
+table(MergeQuantile$income.group, MergeQuantile$gdp.quantile, dnn = c("Income.Group","GDP.Quantile"))
+```
+
+```
+##                       GDP.Quantile
+## Income.Group            1  2  3  4  5
+##                         0  0  0  0  0
+##   High income: nonOECD  4  5  8  5  1
+##   High income: OECD    18 10  1  1  0
+##   Lower middle income   5 13 12  8 16
+##   Low income            0  1  9 16 11
+##   Upper middle income  11  9  8  8  9
+```
+
+```r
+## Confirm number of lower middle income countries as listed in the table above
+sum(MergeQuantile[(nrow(MergeQuantile)-37):nrow(MergeQuantile),]$income.group == "Lower middle income")
+```
+
+```
+## [1] 5
+```
+<br>          
+
+##### **Based on the groupings, *Lower middle income* group are among the 38 nations with the highest GDP, especially 5 countries.**       
+
+<br>
+<br>
+<br>       
+
+#### Conclusion:      
+

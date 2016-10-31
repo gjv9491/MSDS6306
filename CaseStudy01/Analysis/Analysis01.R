@@ -10,7 +10,6 @@ edupath <- paste(getwd(),"/Data/EDU_Final.csv",sep = "")
 #load and 
 GDP <- read.csv(gdppath,header=TRUE)
 names(GDP)[names(GDP)=="X"] <- "ID"
-names(GDP)[names(GDP)=="X.1"] <- "Val"
 
 EDU <- read.csv(edupath,header=TRUE)
 names(EDU)[names(EDU)=="X"] <- "ID"

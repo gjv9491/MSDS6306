@@ -49,6 +49,25 @@ GDP <- GDP[is.na(GDP$iso3.countrycode)==FALSE,]
 #remove unwanted coulmns
 GDP <- GDP[,colSums(is.na(GDP))==0]
 
+#rename blank column to Column
+colnames(GDP)
+names(GDP)[5] <- "Comments"
+
+
+
+  #### The original *Comments* column consists of letter designators which point to a legend (found at the bottom of the raw data set) that contains comments for some observations. In order to make these details accessible for future use after tidying the data, the *Comments* column letter designators are replaced with the original data set's legend contents.
+
+## Replace comment reference with comment from original data's legend
+GDP[GDP$Comments != "",] # View valid comment column entries before edits
+GDP$Comments[GDP$Comments == 'a'] <- "Includes Former Spanish Sahara"
+GDP$Comments[GDP$Comments == 'b'] <- "Excludes South Sudan"
+GDP$Comments[GDP$Comments == 'c'] <- "Covers mainland Tanzania only"
+GDP$Comments[GDP$Comments == 'd'] <- "Data are for the area controlled by the government of the Republic of Cyprus"
+GDP$Comments[GDP$Comments == 'e'] <- "Excludes Abkhazia and South Ossetia"
+GDP$Comments[GDP$Comments == 'f'] <- "Excludes Transnistria"
+GDP[GDP$Comments != "",] 
+
+
 #convert to digits
 GDP$us.dollars <- as.numeric(gsub("[^[:digit:]]","",GDP$us.dollars))
 GDP$us.dollars[which(is.na(GDP$us.dollars)==TRUE)] <- 0

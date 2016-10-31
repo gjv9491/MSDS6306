@@ -1,5 +1,5 @@
 ---
-title: " Understanding the relationship between Education and GDP."
+title: " Understanding the relationship between Income group and GDP."
 subtitle: "Using World Bank Education Stats to Gross Domestic Product data"
 author: "Gino Varghese"
 date: "October 25, 2016"
@@ -19,10 +19,7 @@ output:
     + http://data.worldbank.org/data-catalog/ed-stats
 <br>
 
-Our goal is to make some educated assumptions by combining both the data sets, to see if there is any relationship between the access to education, progression, completion, literacy, teachers, population, and expenditures to a givens countries economic growth.
-
-The indicators cover the education cycle from pre-primary to vocational and tertiary education.
-together after tidying the raw files      
+Our goal is to make some educated assumptions by combining both the data sets, to see if there is any relationship between the access to education, progression, completion, literacy, teachers, population, and expenditures boost's the countries income growth which will then lead to countries economic growth.
 
 <br>
 <br>
@@ -132,13 +129,164 @@ source("Cleanup_EDU.R", echo = TRUE)
 
 ```
 
+<br>                                      
+                                      
+* **Clearing existing objects**
+```{r cleanobj, cache=TRUE, echo=TRUE}
+source("removeObjects.R", echo = TRUE)
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
 ```
+             
+<br>
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+* **Loading tidy data for analysis**
+```{r tidydata, cache=TRUE, echo=TRUE}
+#Load cleaned up csv file for GDP
+
+setwd("~/git/MSDS6306/CaseStudy01/Analysis")
+gdppath <- paste(getwd(),"/Data/GDP_Final.csv",sep = "")
+edupath <- paste(getwd(),"/Data/EDU_Final.csv",sep = "")
+
+#load and 
+GDP <- read.csv(gdppath,header=TRUE)
+names(GDP)[names(GDP)=="X"] <- "ID"
+str(GDP)
+
+EDU <- read.csv(edupath,header=TRUE)
+names(EDU)[names(EDU)=="X"] <- "ID"
+str(EDU)
+
+```
+<br>
+<br>
+
+#### Merging GDP and EDU data
+The original data have been cleaned and only the columns of interest have been set aside for merging, GDP and EDU data are ready to be merged together. After merging the two data sets together by *iso3.countrycode*
+```{r mergeGDPEDU, cache=TRUE, echo=FALSE}
+MergeGDPInc <- merge(EDU, GDP, by = "iso3.countrycode", all = TRUE)
+
+```     
+
+<br>
+
+#### Reduce to columns of interest       
+* iso3.countrycode
+* "economy"
+* "ranking"
+* "income group"
+* "us.dollars"      
+
+```{r columnsinterest, cache=TRUE, echo=TRUE}
+names(MergeGDPInc)[names(MergeGDPInc)=="iso3.countrycode"] <- "country.code"
+names(MergeGDPInc)[names(MergeGDPInc)=="economy"] <- "country.name"
+names(MergeGDPInc)[names(MergeGDPInc)=="ranking"] <- "gdp.ranking"
+names(MergeGDPInc)[names(MergeGDPInc)=="income group"] <- "income.group"
+names(MergeGDPInc)[names(MergeGDPInc)=="us.dollars"] <- "gdp.usd"
+
+MergeGDPInc <- subset(MergeGDPInc,select = c("country.code","country.name","gdp.ranking","income.group","gdp.usd"))
+
+str(MergeGDPInc)
+```          
+            
+<br>
+<br>
+
+### Results:
+
+#### **Question 1:** Match the data based on the country shortcode. How many of the IDs match?
+<br>
+```{r NA, cache=TRUE, echo=TRUE}
+## how many of the IDs match?
+nrow(MergeGDPInc)
+
+## how many of the rows contain NAs?
+sum(!complete.cases(MergeGDPInc))
+
+## Remove rows with missing data
+MergeGDPInc01 <- MergeGDPInc[complete.cases(MergeGDPInc),]
+nrow(MergeGDPInc01) 
+str(MergeGDPInc01)
+```        
+
+##### **There are 215 matching IDs. Once all 26 NAs are removed, there remain 189 matching country code IDs.**       
+
+<br>
+<br>
+
+#### **Question 2:** Sort the data frame in ascending order by GDP (so United States is last). What is the 13th country in the resulting data frame?
+<br>
+```{r sortorder, cache=TRUE, echo=TRUE}
+MergeGDPInc01 <- MergeGDPInc01[order(MergeGDPInc01$gdp.usd, decreasing = FALSE),] # Sort the data by GDP
+MergeGDPInc01$country.name[13]
+``` 
+                   
+##### **St. Kitts and Nevis is the 13th country in the data frame**            
+
+<br>
+<br>
+
+#### **Question 3:** What are the average GDP rankings for the "High income: OECD" and "High income: nonOECD" groups?
+<br>
+```{r gdpranking, cache=TRUE, echo=TRUE}
+mean(subset(MergeGDPInc01, income.group == "High income: OECD")$gdp.ranking)    # Mean High income: OECD rank
+mean(subset(MergeGDPInc01, income.group == "High income: nonOECD")$gdp.ranking) # Mean High income: nonOECD rank
+```      
+       
+##### **Average *High income: OECD* GDP ranking is 32.96667.**
+##### **Average *High income: nonOECD* GDP ranking is 91.91304.**
+
+<br>
+<br>
+
+#### **Question 4:** Plot the GDP for all of the countries. Use ggplot2 to color your plot by Income.Group?
+<br>
+```{r [gdprankingplotgdp, cache=TRUE, echo=TRUE}
+ ggplot(data = MergeGDPInc01, aes(x=income.group, y=(gdp.usd/10000), fill=income.group)) + 
+  geom_boxplot(outlier.colour = "red", outlier.shape = 8, outlier.size = 2) +
+  ggtitle("GDP for All Countries by Income Group") +
+  labs(x="Income Group", y="(GDP/10,000) (US Dollars in Millions)") + theme(text = element_text(size=12),
+        axis.text.x = element_text(angle=90, vjust=1)) 
+``` 
+                         
+##### **The first boxplot visualization depicts all *GDP (US Dollars in million)* data by *Income Group*.**             
+
+##### **The data appears heavily skewed and large outliers in *High income: OECD* and *Lower middle income* make it difficult to compare each distribution by *Income.Group*. Its best to log transform the data and then visualize the box plots**        
+<br>
+```{r [gdprankingplotgdplog, cache=TRUE, echo=TRUE}
+ ggplot(data = MergeGDPInc01, aes(x=income.group, y=log(gdp.usd/10000), fill=income.group)) + 
+  geom_boxplot(outlier.colour = "red", outlier.shape = 8, outlier.size = 2) +
+  ggtitle("Log of GDP for All Countries by Income Group") +
+  labs(x="Income Group", y="Log of GDP (US Dollars in Millions)") + theme(text = element_text(size=12),
+        axis.text.x = element_text(angle=90, vjust=1)) 
+``` 
+<br>      
+
+##### **As soon as the data was log transformed, it was evident that most of the *High income: OECD* group data exceed the remaining groups' data in terms of GDP, It appears that *High income: nonOECD's* appears to be nearly identical to *Upper middle income's* **
+
+<br>
+<br>
+
+#### **Question 5:** Cut the GDP ranking into 5 separate quantile groups. Make a table versus Income.Group. How many countries are lower middle income but among the 38 nations with the highest GDP?
+##### *ntile* function is used to split the GDP rankings into 5 separate quantile groups, this function is from the *dplyr* package. 
+<br>
+```{r [gdprankingby5, cache=TRUE, echo=TRUE}
+MergeQuantile <- MergeGDPInc01
+MergeQuantile$gdp.quantile <- ntile(MergeQuantile$gdp.ranking, 5) # Add 5 quantiles by Country.Rank to new GDP.Quantile column
+
+## Generate table by Income.Group output
+table(MergeQuantile$income.group, MergeQuantile$gdp.quantile, dnn = c("Income.Group","GDP.Quantile"))
+
+## Confirm number of lower middle income countries as listed in the table above
+sum(MergeQuantile[(nrow(MergeQuantile)-37):nrow(MergeQuantile),]$income.group == "Lower middle income")
+
+```
+<br>          
+
+##### **Based on the groupings, *Lower middle income* group are among the 38 nations with the highest GDP, especially 5 countries.**       
+
+<br>
+<br>
+<br>       
+
+#### Conclusion:      
+
