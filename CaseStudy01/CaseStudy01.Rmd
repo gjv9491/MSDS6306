@@ -143,9 +143,9 @@ source("removeObjects.R", echo = TRUE)
 ```{r tidydata, cache=TRUE, echo=TRUE}
 #Load cleaned up csv file for GDP
 
-setwd("~/git/MSDS6306/CaseStudy01/Analysis")
-gdppath <- paste(getwd(),"/Data/GDP_Final.csv",sep = "")
-edupath <- paste(getwd(),"/Data/EDU_Final.csv",sep = "")
+#setwd("~/git/MSDS6306/CaseStudy01/Analysis")
+gdppath <- "GDP_Final.csv"
+edupath <- "EDU_Final.csv"
 
 #load and 
 GDP <- read.csv(gdppath,header=TRUE)
