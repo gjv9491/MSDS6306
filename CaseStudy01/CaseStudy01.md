@@ -859,7 +859,7 @@ mean(subset(MergeGDPInc01, income.group == "High income: nonOECD")$gdp.ranking) 
 <br>
 <br>          
 
-**As soon as the data was log transformed (shown in diagram 02 & 03), it was evident that most of the *High income: OECD* group data exceeded the remaining groups' data in terms of GDP. It also appears that the *High income: nonOECD* group is nearly identical to the *Upper middle income's*. **        
+##### As soon as the data was log transformed (shown in diagram 02 & 03), it was evident that most of the *High income: OECD* group data exceeded the remaining groups' data in terms of GDP. It also appears that the *High income: nonOECD* group is nearly identical to the *Upper middle income's*.               
 
 <br>
 <br>
