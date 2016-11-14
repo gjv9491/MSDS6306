@@ -1,0 +1,184 @@
+---
+title: "Live Session Unit 10 Assignment"
+author: "Gino Varghese"
+date: "November 11, 2016"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction              
+Download click through rate data set from the following site   
+
+* http://stat.columbia.edu/~rachel/datasets/nyt7.csv      
+and perform necessary analysis to understand days worth of ads shown and clicks recorded on the New York Times homepage in May 2012, for this excercise i will be limiting my analysis to nyt7.csv file.         
+
+<br>
+
+#### The following was done before starting the analysis:                                
+
+* setting of working directory                  
+* installation and loading of necessary packages              
+* R version     
+
+```{r libsetup, include=TRUE, message=FALSE, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "~/git/MSDS6306/LiveAssignment_Unit10/Analysis/Data")
+require(knitr)
+require(dplyr)
+require(plyr)
+require(ggplot2)
+require(downloader)
+sessionInfo()
+```               
+<br>
+
+##### **The analysis was started by downloading the following data sets:**                                
+
+* **download data set nyt7 dataset**         
+```{r nyt7download, cache=TRUE,echo=TRUE}
+source("downloadNYT7.R", echo = TRUE)
+list.files()
+```            
+<br>
+
+##### **Once the data is downloaded to the *Data* directory, its time to load the csv for analysis.**                
+
+```{r loadnyt7, echo=TRUE}
+filelocation <- "~/git/MSDS6306/LiveAssignment_Unit10/Analysis/Data/nyt7.csv"
+nyt7data <- read.csv(filelocation)
+```         
+<br>
+
+##### **Review the data set**         
+
+```{r headnyt7, echo=TRUE}
+head(nyt7data)
+str(nyt7data)
+summary(nyt7data)
+```          
+<br>
+
+##### **Create a new variable *ageGroup* that categorizes age into following groups: < 18, 18–24, 25–34, 35–44, 45–54, 55–64 and 65+.**            
+
+```{r ageGroupnyt7, echo=TRUE}
+nyt7data$ageGroup <- cut(nyt7data$Age, c(-Inf, 18, 24, 34, 44, 54, 64, Inf))
+levels(nyt7data$ageGroup) <- c("<18","18-24","25-34","35-44","45-54","55-64","65+")
+levels(nyt7data$ageGroup)
+head(nyt7data)
+```          
+<br>
+
+##### **Use sub set of data called *ImpSub* where Impressions > 0  in your data set.**
+
+```{r impsubnyt7, echo=TRUE}
+ImpSub <- subset(nyt7data,Impressions > 0)
+summary(ImpSub$Impressions)
+```         
+<br>
+
+##### **Create a new variable called click-through-rate (CTR = click/impression).**           
+```{r ctrimpsubnyt7, echo=TRUE}
+ImpSub$CTR <- ImpSub$Clicks/ImpSub$Impressions
+head(ImpSub)
+```         
+<br>
+
+##### **Plot distributions of number impressions and click-through-rate (CTR = click/impression) for the age groups.**
+<br>
+
+```{r impsubplot1, echo=TRUE, cache=TRUE}
+ggplot(subset(ImpSub,CTR>0), aes(x=CTR, fill = ageGroup)) +
+  geom_histogram(binwidth = .05) +
+  ggtitle("(CTR) Click Through Rate by Age Group") + xlab("CTR (Clicks/Impressions)") + ylab("Count")
+``` 
+<br>
+
+```{r impsubplot2, echo=TRUE, cache=TRUE}
+ggplot(subset(ImpSub,CTR>0), aes(x=log(CTR), fill = ageGroup)) +
+  geom_histogram(binwidth = .05) +
+  ggtitle("log(CTR) Click Through Rate by Age Group") + xlab("log CTR (Clicks/Impressions)") + ylab("Count")
+```  
+<br>
+
+```{r impsubplot3, echo=TRUE, cache=TRUE}
+ggplot(subset(ImpSub,CTR>0), aes(log(CTR), colour = ageGroup)) +
+    geom_density(alpha=0.1,position = "stack") +
+  ggtitle("log(CTR) Click Through Rate by Age Group") + xlab("CTR (Clicks/Impressions)") + ylab("Density")
+```  
+<br>   
+
+##### **Define a new variable to segment users based on click -through-rate (CTR) behavior. CTR< 0.2, 0.2<=CTR <0.4, 0.4<= CTR<0.6, 0.6<=CTR<0.8, CTR>0.8**
+```{r CTRbehavior, echo=TRUE, cache=TRUE}
+ImpSub$CTR.behavior[ImpSub$CTR < 0.2] <- "CTR< 0.2"
+ImpSub$CTR.behavior[ImpSub$CTR >= 0.2 &  ImpSub$CTR <0.4] <- "0.2<=CTR <0.4"
+ImpSub$CTR.behavior[ImpSub$CTR >= 0.4 &  ImpSub$CTR <0.6] <- "0.4<=CTR <0.6"
+ImpSub$CTR.behavior[ImpSub$CTR >= 0.6 &  ImpSub$CTR <0.8] <- "0.6<=CTR <0.8"
+ImpSub$CTR.behavior[ImpSub$CTR > 0.8] <- "CTR> 0.4"
+``` 
+
+##### **Get the total number of Male, Impressions, Clicks and Signed_In (0=Female, 1=Male)**
+```{r count, echo=TRUE, cache=TRUE}
+
+#Gender
+sapply(split(ImpSub,ImpSub$Gender),NROW)
+#Impressions
+sapply(split(ImpSub,ImpSub$Impressions),NROW)
+#Clicks
+sapply(split(ImpSub,ImpSub$Clicks),NROW)
+#Signed_In
+sapply(split(ImpSub,ImpSub$Signed_In),NROW)
+``` 
+<br>
+
+##### **Get the mean of Age, Impressions, Clicks, CTR and percentage of males and signed_In**
+```{r mean, echo=TRUE, cache=TRUE}
+#Age
+mean(ImpSub$Age)
+#Impressions
+mean(ImpSub$Impressions)
+#Clicks
+mean(ImpSub$Clicks)
+#CTR
+mean(ImpSub$CTR)
+#%ofmales
+mean(ImpSub$Gender/sum(ImpSub$Gender) *100)
+#Signed_In
+mean(ImpSub$Signed_In)
+``` 
+<br>
+
+##### **Get the means of Impressions, Clicks, CTR and percentage of males and signed_In  by AgeGroup.**
+```{r meanbyagegroup, echo=TRUE, cache=TRUE}
+#Impressions
+tapply(ImpSub$Impressions,ImpSub$ageGroup,mean)
+#Clicks
+tapply(ImpSub$Clicks,ImpSub$ageGroup,mean)
+#CTR
+tapply(ImpSub$CTR,ImpSub$ageGroup,mean)
+#%ofmales
+tapply((ImpSub$Gender/sum(ImpSub$Gender) *100),ImpSub$ageGroup,mean)
+#Signed_In
+tapply(ImpSub$Signed_In,ImpSub$ageGroup,mean)
+```        
+<br>
+
+##### **Create a table of CTRGroup vs AgeGroup counts.**
+```{r ctagegroup, echo=TRUE, cache=TRUE}
+#CTRGroup vs. AgeGroup
+ctragegroup <- table(ImpSub$CTR.behavior,ImpSub$ageGroup)
+head(ctragegroup)
+```         
+<br>
+
+##### **One more plot you think which is important to look at.**
+```{r impsubplot4, echo=TRUE, cache=TRUE}
+ggplot(subset(ImpSub,CTR>0), aes(x=CTR, colour = ageGroup)) +
+  geom_freqpoly(binwidth = 0.015) +
+  ggtitle("CTR Click Through Rate by Age Group") + xlab("CTR (Clicks/Impressions)") + ylab("Count")
+```         
+<br>
