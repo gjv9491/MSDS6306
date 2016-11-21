@@ -1,0 +1,105 @@
+---
+title: "Live Session Unit 11 Assignment"
+author: "Gino Varghese"
+date: "November 17, 2016"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Introduction            
+<br>
+
+* load libraries
+```{r fpp}
+library(fpp)
+data(ukcars)
+```
+<br>
+<br>
+
+**a) Plot the time series. Can you identify seasonal fluctuations and/or a trend?**            
+
+* We can see seasonal fluctuations and the trend seems seems to go up every year
+
+```{r fppplot}
+plot(ukcars)
+```
+<br>
+<br>
+
+**b) Use a classical decomposition to calculate the trend-cycle and seasonal indices.**              
+
+```{r decomposefpp}
+fitd <- decompose(ukcars)
+plot(fitd)
+```
+<br>
+<br>
+
+**c) Do the results support the graphical interpretation from part (a)?**                 
+
+* Yes, the result from graphical interpretation from part (a) seem to align with the classical decomposition plot.
+<br>
+<br>
+
+
+**d) Compute and plot the seasonally adjusted data.**             
+
+```{r plotseason}
+eeadj <- seasadj(fitd)
+plot(eeadj)
+```
+<br>
+<br>
+
+**e) Change one observation to be an outlier (e.g., add 500 to one observation), and recompute the seasonally adjusted data. What is the effect of the outlier?**               
+
+```{r addoutliers}
+fitcars2 <- ts(c(ukcars[1:54],ukcars[55]+500,ukcars[56:113]),start=c(1996,1),frequency=12)
+plot(fitcars2)
+fit2 <- stl(fitcars2, s.window=5)
+plot(fit2)
+```               
+                                
+* The "500" outlier in the middle of the data set has caused a sudden peak in the graph and is in between 2000 and 2002        
+* The outlier has caused the seasonal and trend graph to rise up suddenly in middle of the data set
+<br>
+<br>
+
+**f) Does it make any difference if the outlier is near the end rather than in the middle of the time series?**               
+
+
+```{r addoutliersback}
+fitcars3 <- ts(c(ukcars[1:112],ukcars[113]+500),start=c(1996,1),frequency=12)
+plot(fitcars3)
+fit4 <- stl(fitcars3, s.window=5)
+plot(fit4)
+```                                          
+
+* The "500" outlier towards the end of the data set has caused a sudden peak in the graph and is after 2004             
+* The outlier has caused the seasonal and trend graph to rise up towards the end of the data set, causing the trend to go up higher
+<br>
+<br>
+
+**g) Use STL to decompose the series.**                                                       
+```{r stlfit}
+fit <- stl(ukcars, s.window=5)
+plot(fit)
+
+plot(ukcars, col="gray",
+  main="UK Cars",
+  ylab="count", xlab="Years")
+lines(fit$time.series[,2],col="red",ylab="Trend")
+```  
+<br>
+
+
+
+
+
+
