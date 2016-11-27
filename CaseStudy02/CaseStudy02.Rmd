@@ -158,7 +158,7 @@ is.numeric(Orange$Tree)
 is.factor(Orange$Tree)
 Orange$order.tree <- as.numeric(as.character(Orange$Tree))
 
-ggplot(Orange, aes(x=Orange$circumference, y=Orange$age)) + 
+ggplot(data=Orange, aes(x=Orange$circumference, y=Orange$age)) + 
   geom_point(aes(shape = reorder(Orange$Tree,Orange$order.tree)), size=4) +
   scale_shape(name="Tree Types", solid = FALSE) +
   ggtitle("Age vs. Circumference") + xlab("Circumference") + ylab("Age") 
@@ -166,7 +166,15 @@ ggplot(Orange, aes(x=Orange$circumference, y=Orange$age)) +
 ``` 
 <br>                  
 
-
+#### c) Display the trunk circumferences on a comparative boxplot against tree. Be sure you order the boxplots in the increasing order of maximum diameter.            
+```{r tree03, eval=TRUE, cache=TRUE, echo=TRUE}
+  ggplot(Orange, aes(reorder(Orange$Tree,Orange$circumference) , Orange$circumference, fill = reorder(Orange$Tree,Orange$order.tree))) +  
+ geom_boxplot() +
+    guides(fill = guide_legend(title = "Tree Types"))+
+  ggtitle("Tree vs circumference") +
+  xlab("Tree") +  ylab("Circumference")
+``` 
+<br>  
 <br>
 <br>
 
