@@ -13,6 +13,7 @@ Case Study 02, final case study.
 ```r
 knitr::opts_chunk$set(echo = TRUE)
 require(tseries)
+require(ggplot2)
 sessionInfo()
 ```
 
@@ -33,14 +34,15 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] tseries_0.10-35
+## [1] ggplot2_2.1.0   tseries_0.10-35
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.7     quadprog_1.5-5  lattice_0.20-33 zoo_1.7-13     
-##  [5] digest_0.6.10   assertthat_0.1  grid_3.2.3      formatR_1.4    
-##  [9] magrittr_1.5    evaluate_0.10   stringi_1.1.2   rmarkdown_1.1  
-## [13] tools_3.2.3     stringr_1.1.0   yaml_2.1.13     htmltools_0.3.5
-## [17] knitr_1.14      tibble_1.2
+##  [1] Rcpp_0.12.7      quadprog_1.5-5   lattice_0.20-33  zoo_1.7-13      
+##  [5] digest_0.6.10    assertthat_0.1   plyr_1.8.4       grid_3.2.3      
+##  [9] gtable_0.2.0     formatR_1.4      magrittr_1.5     scales_0.4.0    
+## [13] evaluate_0.10    stringi_1.1.2    rmarkdown_1.1    tools_3.2.3     
+## [17] stringr_1.1.0    munsell_0.4.3    yaml_2.1.13      colorspace_1.2-7
+## [21] htmltools_0.3.5  knitr_1.14       tibble_1.2
 ```
 
 <br>
@@ -107,7 +109,8 @@ X = new_matrix.reshape(3,4)
 print(X)
 ```
 ![alt text](https://github.com/gjv9491/MSDS6306/blob/casestudy02/CaseStudy02/CaseStudy02_files/figure-html/PYTHONQ01-1.png "Python output")
-<br>
+<br>                  
+<br>                
 
 ### Question 2                                                        
 ##### Please do the following with your assigned stock. "ADP" 
@@ -170,3 +173,116 @@ lines(volest3, type = "l", col="blue")
 ![](CaseStudy02_files/figure-html/radp05-1.png)<!-- -->
 <br>  
 <br>
+
+### Question 3     
+##### The built-in data set called Orange in R is about the growth of orange trees. The Orange data frame has 3 columns of records of the growth of orange trees.                      
+<br>
+
+#### a) Calculate the mean and the median of the trunk circumferences for different size of the trees. (Tree)                  
+
+```r
+data("Orange")
+head(Orange)
+```
+
+```
+##   Tree  age circumference
+## 1    1  118            30
+## 2    1  484            58
+## 3    1  664            87
+## 4    1 1004           115
+## 5    1 1231           120
+## 6    1 1372           142
+```
+
+```r
+str(Orange)
+```
+
+```
+## Classes 'nfnGroupedData', 'nfGroupedData', 'groupedData' and 'data.frame':	35 obs. of  3 variables:
+##  $ Tree         : Ord.factor w/ 5 levels "3"<"1"<"5"<"2"<..: 2 2 2 2 2 2 2 4 4 4 ...
+##  $ age          : num  118 484 664 1004 1231 ...
+##  $ circumference: num  30 58 87 115 120 142 145 33 69 111 ...
+##  - attr(*, "formula")=Class 'formula' length 3 circumference ~ age | Tree
+##   .. ..- attr(*, ".Environment")=<environment: R_EmptyEnv> 
+##  - attr(*, "labels")=List of 2
+##   ..$ x: chr "Time since December 31, 1968"
+##   ..$ y: chr "Trunk circumference"
+##  - attr(*, "units")=List of 2
+##   ..$ x: chr "(days)"
+##   ..$ y: chr "(mm)"
+```
+
+```r
+summary(Orange)
+```
+
+```
+##  Tree       age         circumference  
+##  3:7   Min.   : 118.0   Min.   : 30.0  
+##  1:7   1st Qu.: 484.0   1st Qu.: 65.5  
+##  5:7   Median :1004.0   Median :115.0  
+##  2:7   Mean   : 922.1   Mean   :115.9  
+##  4:7   3rd Qu.:1372.0   3rd Qu.:161.5  
+##        Max.   :1582.0   Max.   :214.0
+```
+
+```r
+#Mean of circumference by Tree size
+orange_mean <- tapply(Orange$circumference,Orange$Tree,mean)
+orange_mean[order(names(orange_mean))]
+```
+
+```
+##         1         2         3         4         5 
+##  99.57143 135.28571  94.00000 139.28571 111.14286
+```
+
+```r
+#Median of circumference by Tree size
+orange_median <- tapply(Orange$circumference,Orange$Tree,median)
+orange_median[order(names(orange_median))]
+```
+
+```
+##   1   2   3   4   5 
+## 115 156 108 167 125
+```
+<br>         
+
+#### b) Make a scatter plot of the trunk circumferences against the age of the tree. Use different plotting symbols for different size of trees.                   
+
+```r
+is.numeric(Orange$Tree)
+```
+
+```
+## [1] FALSE
+```
+
+```r
+is.factor(Orange$Tree)
+```
+
+```
+## [1] TRUE
+```
+
+```r
+Orange$order.tree <- as.numeric(as.character(Orange$Tree))
+
+ggplot(Orange, aes(x=Orange$circumference, y=Orange$age)) + 
+  geom_point(aes(shape = reorder(Orange$Tree,Orange$order.tree)), size=4) +
+  scale_shape(name="Tree Types", solid = FALSE) +
+  ggtitle("Age vs. Circumference") + xlab("Circumference") + ylab("Age") 
+```
+
+![](CaseStudy02_files/figure-html/tree02-1.png)<!-- -->
+<br>                  
+
+
+<br>
+<br>
+
+

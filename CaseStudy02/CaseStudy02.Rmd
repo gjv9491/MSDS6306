@@ -17,6 +17,7 @@ Case Study 02, final case study.
 ```{r setup, include=TRUE, message=FALSE, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 require(tseries)
+require(ggplot2)
 sessionInfo()
 ```
 
@@ -74,7 +75,8 @@ X = new_matrix.reshape(3,4)
 print(X)
 ```                                     
 ![alt text](https://github.com/gjv9491/MSDS6306/blob/casestudy02/CaseStudy02/CaseStudy02_files/figure-html/PYTHONQ01-1.png "Python output")
-<br>
+<br>                  
+<br>                
 
 ### Question 2                                                        
 ##### Please do the following with your assigned stock. "ADP" 
@@ -127,3 +129,45 @@ lines(volest3, type = "l", col="blue")
 ```                    
 <br>  
 <br>
+
+### Question 3     
+##### The built-in data set called Orange in R is about the growth of orange trees. The Orange data frame has 3 columns of records of the growth of orange trees.                      
+<br>
+
+#### a) Calculate the mean and the median of the trunk circumferences for different size of the trees. (Tree)                  
+```{r tree01, eval=TRUE, cache=TRUE, echo=TRUE}
+data("Orange")
+head(Orange)
+str(Orange)
+summary(Orange)
+
+#Mean of circumference by Tree size
+orange_mean <- tapply(Orange$circumference,Orange$Tree,mean)
+orange_mean[order(names(orange_mean))]
+
+#Median of circumference by Tree size
+orange_median <- tapply(Orange$circumference,Orange$Tree,median)
+orange_median[order(names(orange_median))]
+
+``` 
+<br>         
+
+#### b) Make a scatter plot of the trunk circumferences against the age of the tree. Use different plotting symbols for different size of trees.                   
+```{r tree02, eval=TRUE, cache=TRUE, echo=TRUE}
+is.numeric(Orange$Tree)
+is.factor(Orange$Tree)
+Orange$order.tree <- as.numeric(as.character(Orange$Tree))
+
+ggplot(Orange, aes(x=Orange$circumference, y=Orange$age)) + 
+  geom_point(aes(shape = reorder(Orange$Tree,Orange$order.tree)), size=4) +
+  scale_shape(name="Tree Types", solid = FALSE) +
+  ggtitle("Age vs. Circumference") + xlab("Circumference") + ylab("Age") 
+
+``` 
+<br>                  
+
+
+<br>
+<br>
+
+
