@@ -37,6 +37,7 @@ print x;
 run;
 quit;
 ```
+![alt text](https://github.com/gjv9491/MSDS6306/blob/casestudy02/CaseStudy02/CaseStudy02_files/figure-html/SASQ01-1.png "SAS output")
 <br>
 
 #### R Code
@@ -69,11 +70,14 @@ new_matrix = np.matrix(new_array)
 X = new_matrix.reshape(3,4)
 print(X)
 ```
+![alt text](https://github.com/gjv9491/MSDS6306/blob/casestudy02/CaseStudy02/CaseStudy02_files/figure-html/PYTHONQ01-1.png "Python output")
+<br>
 
-## Including Plots
-
-You can also embed plots, for example:
-
-![](CaseStudy02_files/figure-html/pressure-1.png)<!-- -->
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### Question 2                                                        
+Please do the following with your assigned stock. "ADP" 
+Download the data.
+Calculate log returns.
+Calculate volatility measure.
+Calculate volatility over entire length of series for various three different decay factors.
+Plot the results, overlaying the volatility curves on the data, just as was done in the S&P example.                         
+<br>
