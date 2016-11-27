@@ -1,0 +1,77 @@
+---
+title: "Case Study 02"
+author: "contributed by Ramesh and gino"
+date: "December 08, 2016"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Case Study 02, final case study.                          
+<br>
+<br>
+
+### Question 1                                                        
+Create the X matrix and print it from SAS, R, and Python.                            
+<br>
+
+#### SAS Code
+
+
+```{sas sasq01, eval=FALSE, cache=TRUE, echo=TRUE}
+data mylib.Xmatrix;
+input x0 x1 x2 x3;
+datalines;
+4 5 1 2
+1 0 3 5
+2 1 8 2
+;
+run;
+quit;
+
+Proc IML;
+use mylib.Xmatrix;
+read all;
+x = x0 || x1 || x2 || x3;
+print x;
+run;
+quit;
+```                               
+<br>
+
+#### R Code
+
+
+```{r rq01, eval=TRUE, cache=TRUE, echo=TRUE}
+new_vector <- c(4,5,1,2,1,0,3,5,2,1,8,2)
+X <- matrix(new_vector, ncol=4, nrow=3, byrow=TRUE)
+X
+```                                 
+<br>
+
+#### Python Code
+
+
+```{python pyq01, eval=FALSE, cache=TRUE, echo=TRUE}
+import numpy as np
+
+new_array = np.array([4,5,1,2,1,0,3,5,2,1,8,2])
+new_matrix = np.matrix(new_array)
+X = new_matrix.reshape(3,4)
+print(X)
+```                                     
+
+### Question 2                                                        
+Please do the following with your assigned stock. "ADP" 
+Download the data.
+Calculate log returns.
+Calculate volatility measure.
+Calculate volatility over entire length of series for various three different decay factors.
+Plot the results, overlaying the volatility curves on the data, just as was done in the S&P example.                         
+<br>
