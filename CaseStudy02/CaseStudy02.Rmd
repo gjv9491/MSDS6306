@@ -6,19 +6,25 @@ output:
   html_document:
     keep_md: true
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ## Introduction
 
-Case Study 02, final case study.                          
+Case Study 02, final case study.    
+
+* installation and loading of necessary packages              
+* R version        
+<br>
+
+```{r setup, include=TRUE, message=FALSE, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+require(tseries)
+sessionInfo()
+```
+
 <br>
 <br>
 
 ### Question 1                                                        
-Create the X matrix and print it from SAS, R, and Python.                            
+##### Create the X matrix and print it from SAS, R, and Python.                            
 <br>
 
 #### SAS Code
@@ -71,10 +77,53 @@ print(X)
 <br>
 
 ### Question 2                                                        
-Please do the following with your assigned stock. "ADP" 
-Download the data.
-Calculate log returns.
-Calculate volatility measure.
-Calculate volatility over entire length of series for various three different decay factors.
-Plot the results, overlaying the volatility curves on the data, just as was done in the S&P example.                         
+##### Please do the following with your assigned stock. "ADP" 
+<br>
+
+#### Download "ADP" data.
+```{r radp01, eval=TRUE, cache=TRUE, echo=TRUE}
+ADP_data <- get.hist.quote('ADP',quote="Close")
+``` 
+<br>
+
+#### Calculate log returns.                        
+```{r radp02, eval=TRUE, cache=TRUE, echo=TRUE}
+ADP_return <- log(lag(ADP_data)) - log(ADP_data)
+ADP_volatility <- sd(ADP_return) * sqrt(250) * 100
+``` 
+<br>
+
+#### Calculate volatility measure.
+```{r radp03, eval=TRUE, cache=TRUE, echo=TRUE}
+getVol <- function(d, log_returns){
+  var = 0
+  lam = 0
+  varlist <- c()
+
+  for (r in log_returns) {
+    lam = lam*(1 - 1/d) + 1
+    var = (1 - 1/lam)*var + (1/lam)*r^2
+    varlist <- c(varlist, var)
+  }
+  sqrt(varlist)
+}
+``` 
+<br>
+
+#### Calculate volatility over entire length of series for various three different decay factors.
+```{r radp04, eval=TRUE, cache=TRUE, echo=TRUE}
+volest <- getVol(10,ADP_return)
+volest2 <- getVol(30,ADP_return)
+volest3 <- getVol(100,ADP_return)
+
+```                    
+<br>                
+
+#### Plot the results, overlaying the volatility curves on the data, just as was done in the S&P example.              
+```{r radp05, eval=TRUE, cache=TRUE, echo=TRUE}
+plot(volest, type="l", col="green", main="Volatility curves for ADP stock")
+lines(volest2,type="l",col="red")
+lines(volest3, type = "l", col="blue")
+```                    
+<br>  
 <br>
