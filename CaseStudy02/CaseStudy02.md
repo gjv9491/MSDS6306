@@ -12,8 +12,10 @@ Case Study 02, final case study.
 
 ```r
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "~/git/MSDS6306/CaseStudy02/Analysis/Data")
 require(tseries)
 require(ggplot2)
+require(lubridate)
 sessionInfo()
 ```
 
@@ -34,7 +36,7 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ggplot2_2.1.0   tseries_0.10-35
+## [1] lubridate_1.6.0 ggplot2_2.1.0   tseries_0.10-35
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.7      quadprog_1.5-5   lattice_0.20-33  zoo_1.7-13      
@@ -294,6 +296,70 @@ ggplot(data=Orange, aes(x=Orange$circumference, y=Orange$age)) +
 ![](CaseStudy02_files/figure-html/tree03-1.png)<!-- -->
 <br>  
 <br>
+
+### Question 4     
+##### Download “Temp” data set                   
+<br>
+
+##### Clean TEMP.csv data to get date into one consistant format
+
+```r
+temp_data <- read.csv("TEMP.csv",header=TRUE)
+str(temp_data)
+```
+
+```
+## 'data.frame':	574223 obs. of  4 variables:
+##  $ Date                           : Factor w/ 3239 levels "10/1/1900","10/1/1901",..: 1587 1588 1589 1590 1591 1592 1593 1594 1595 1596 ...
+##  $ Monthly.AverageTemp            : num  13 NA 23.9 26.9 24.9 ...
+##  $ Monthly.AverageTemp.Uncertainty: num  2.59 NA 2.51 2.88 2.99 ...
+##  $ Country                        : Factor w/ 242 levels "Afghanistan",..: 1 1 1 1 1 1 1 1 1 1 ...
+```
+
+```r
+#monthly average temp from NA to 0
+temp_data$Monthly.AverageTemp[is.na(temp_data$Monthly.AverageTemp)] <- 0
+temp_data$Monthly.AverageTemp.Uncertainty[is.na(temp_data$Monthly.AverageTemp.Uncertainty)] <- 0
+
+temp_data$date.clean <- as.Date(temp_data$Date, format = "%Y-%m-%d")
+temp_data.sub <- subset(temp_data,is.na(temp_data$date.clean))
+temp_data.sub02 <- subset(temp_data,!is.na(temp_data$date.clean))
+
+temp_data.sub$date.clean <- format(dmy(temp_data.sub$Date),"%Y-%m-%d")
+temp_data.sub$date.clean <- as.Date(temp_data.sub$date.clean, format = "%Y-%m-%d")
+
+
+
+final_temp_data <- rbind(temp_data.sub,temp_data.sub02)
+
+write.csv(final_temp_data,"final_temp_data.csv")
+
+remove(list = ls())
+
+final_temp_data <- read.csv("final_temp_data.csv",header=TRUE)
+str(final_temp_data)
+```
+
+```
+## 'data.frame':	574223 obs. of  6 variables:
+##  $ X                              : int  742 743 744 745 746 747 748 749 750 751 ...
+##  $ Date                           : Factor w/ 3239 levels "10/1/1900","10/1/1901",..: 227 2328 2442 2556 2670 2784 2898 3012 3126 1 ...
+##  $ Monthly.AverageTemp            : num  -3.43 1.23 10.54 13.35 20.26 ...
+##  $ Monthly.AverageTemp.Uncertainty: num  0.936 1.135 0.933 0.536 0.524 ...
+##  $ Country                        : Factor w/ 242 levels "Afghanistan",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ date.clean                     : Factor w/ 3239 levels "1743-11-01","1743-12-01",..: 1875 1876 1877 1878 1879 1880 1881 1882 1883 1884 ...
+```
+<br>
+
+##### (i) Find the difference between the maximum and the minimum monthly average temperatures for each country and report/visualize top 20 countries with the maximum differences for the period since 1900. 
+
+```r
+#romve unwanted rows
+final_temp_data <- subset(final_temp_data,select = c("Date","Monthly.AverageTemp","Monthly.AverageTemp.Uncertainty","Country","date.clean"))
+```
+<br>
+<br>
+
 <br>
 
 

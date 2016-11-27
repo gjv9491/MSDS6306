@@ -16,8 +16,10 @@ Case Study 02, final case study.
 
 ```{r setup, include=TRUE, message=FALSE, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "~/git/MSDS6306/CaseStudy02/Analysis/Data")
 require(tseries)
 require(ggplot2)
+require(lubridate)
 sessionInfo()
 ```
 
@@ -176,6 +178,48 @@ ggplot(data=Orange, aes(x=Orange$circumference, y=Orange$age)) +
 ``` 
 <br>  
 <br>
+
+### Question 4     
+##### Download “Temp” data set                   
+<br>
+
+##### Clean TEMP.csv data to get "Date" into one consistant format
+```{r temp01, eval=TRUE, cache=TRUE, echo=TRUE}
+temp_data <- read.csv("TEMP.csv",header=TRUE)
+str(temp_data)
+
+#monthly average temp from NA to 0
+temp_data$Monthly.AverageTemp[is.na(temp_data$Monthly.AverageTemp)] <- 0
+temp_data$Monthly.AverageTemp.Uncertainty[is.na(temp_data$Monthly.AverageTemp.Uncertainty)] <- 0
+
+temp_data$date.clean <- as.Date(temp_data$Date, format = "%Y-%m-%d")
+temp_data.sub <- subset(temp_data,is.na(temp_data$date.clean))
+temp_data.sub02 <- subset(temp_data,!is.na(temp_data$date.clean))
+
+temp_data.sub$date.clean <- format(dmy(temp_data.sub$Date),"%Y-%m-%d")
+temp_data.sub$date.clean <- as.Date(temp_data.sub$date.clean, format = "%Y-%m-%d")
+
+
+
+final_temp_data <- rbind(temp_data.sub,temp_data.sub02)
+
+write.csv(final_temp_data,"final_temp_data.csv")
+
+remove(list = ls())
+
+final_temp_data <- read.csv("final_temp_data.csv",header=TRUE)
+str(final_temp_data)
+```                     
+<br>
+
+##### (i) Find the difference between the maximum and the minimum monthly average temperatures for each country and report/visualize top 20 countries with the maximum differences for the period since 1900. 
+```{r temp02, eval=TRUE, cache=TRUE, echo=TRUE}
+#romve unwanted rows
+final_temp_data <- subset(final_temp_data,select = c("Date","Monthly.AverageTemp","Monthly.AverageTemp.Uncertainty","Country","date.clean"))
+``` 
+<br>
+<br>
+
 <br>
 
 
