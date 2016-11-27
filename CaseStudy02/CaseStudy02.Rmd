@@ -19,8 +19,6 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "~/git/MSDS6306/CaseStudy02/Analysis/Data")
 require(tseries)
 require(ggplot2)
-require(dplyr)
-require(plyr)
 require(sqldf)
 require(lubridate)
 require(tcltk)
@@ -236,9 +234,13 @@ ggplot(data=max_country_temp, aes(x=max_country_temp$Month, y=max_country_temp$T
   #geom_path() +
   ggtitle("20 Countries w/ Highest Temp. Diff. per month") + xlab("Month") + ylab("Temp. Diff. between max and min")
 
-
+remove(temp_country)
+remove(top20_max_temp)
+remove(max_country_temp)
 ``` 
 <br>
+
+##### (i) Find the difference between the maximum and the minimum monthly average temperatures for each country and report/visualize top 20 countries with the maximum differences for the period since 1900. 
 <br>
 
 <br>

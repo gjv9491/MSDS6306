@@ -15,8 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "~/git/MSDS6306/CaseStudy02/Analysis/Data")
 require(tseries)
 require(ggplot2)
-require(dplyr)
-require(plyr)
 require(sqldf)
 require(lubridate)
 require(tcltk)
@@ -42,13 +40,12 @@ sessionInfo()
 ## 
 ## other attached packages:
 ## [1] lubridate_1.6.0 sqldf_0.4-10    RSQLite_1.1     gsubfn_0.6-6   
-## [5] proto_1.0.0     plyr_1.8.4      dplyr_0.5.0     ggplot2_2.1.0  
-## [9] tseries_0.10-35
+## [5] proto_1.0.0     ggplot2_2.1.0   tseries_0.10-35
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.7      knitr_1.14       magrittr_1.5     munsell_0.4.3   
-##  [5] colorspace_1.2-7 lattice_0.20-33  R6_2.2.0         quadprog_1.5-5  
-##  [9] stringr_1.1.0    tools_3.2.3      grid_3.2.3       gtable_0.2.0    
+##  [5] colorspace_1.2-7 lattice_0.20-33  quadprog_1.5-5   stringr_1.1.0   
+##  [9] plyr_1.8.4       tools_3.2.3      grid_3.2.3       gtable_0.2.0    
 ## [13] DBI_0.5-1        htmltools_0.3.5  yaml_2.1.13      assertthat_0.1  
 ## [17] digest_0.6.10    tibble_1.2       formatR_1.4      memoise_1.0.0   
 ## [21] evaluate_0.10    rmarkdown_1.1    stringi_1.1.2    scales_0.4.0    
@@ -391,7 +388,15 @@ ggplot(data=max_country_temp, aes(x=max_country_temp$Month, y=max_country_temp$T
 ```
 
 ![](CaseStudy02_files/figure-html/temp03-1.png)<!-- -->
+
+```r
+remove(temp_country)
+remove(top20_max_temp)
+remove(max_country_temp)
+```
 <br>
+
+##### (i) Find the difference between the maximum and the minimum monthly average temperatures for each country and report/visualize top 20 countries with the maximum differences for the period since 1900. 
 <br>
 
 <br>
