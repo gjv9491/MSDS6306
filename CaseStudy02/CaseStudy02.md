@@ -15,7 +15,11 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "~/git/MSDS6306/CaseStudy02/Analysis/Data")
 require(tseries)
 require(ggplot2)
+require(dplyr)
+require(plyr)
+require(sqldf)
 require(lubridate)
+require(tcltk)
 sessionInfo()
 ```
 
@@ -33,18 +37,22 @@ sessionInfo()
 ## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 ## 
 ## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## [1] tcltk     stats     graphics  grDevices utils     datasets  methods  
+## [8] base     
 ## 
 ## other attached packages:
-## [1] lubridate_1.6.0 ggplot2_2.1.0   tseries_0.10-35
+## [1] lubridate_1.6.0 sqldf_0.4-10    RSQLite_1.1     gsubfn_0.6-6   
+## [5] proto_1.0.0     plyr_1.8.4      dplyr_0.5.0     ggplot2_2.1.0  
+## [9] tseries_0.10-35
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.7      quadprog_1.5-5   lattice_0.20-33  zoo_1.7-13      
-##  [5] digest_0.6.10    assertthat_0.1   plyr_1.8.4       grid_3.2.3      
-##  [9] gtable_0.2.0     formatR_1.4      magrittr_1.5     scales_0.4.0    
-## [13] evaluate_0.10    stringi_1.1.2    rmarkdown_1.1    tools_3.2.3     
-## [17] stringr_1.1.0    munsell_0.4.3    yaml_2.1.13      colorspace_1.2-7
-## [21] htmltools_0.3.5  knitr_1.14       tibble_1.2
+##  [1] Rcpp_0.12.7      knitr_1.14       magrittr_1.5     munsell_0.4.3   
+##  [5] colorspace_1.2-7 lattice_0.20-33  R6_2.2.0         quadprog_1.5-5  
+##  [9] stringr_1.1.0    tools_3.2.3      grid_3.2.3       gtable_0.2.0    
+## [13] DBI_0.5-1        htmltools_0.3.5  yaml_2.1.13      assertthat_0.1  
+## [17] digest_0.6.10    tibble_1.2       formatR_1.4      memoise_1.0.0   
+## [21] evaluate_0.10    rmarkdown_1.1    stringi_1.1.2    scales_0.4.0    
+## [25] chron_2.3-47     zoo_1.7-13
 ```
 
 <br>
@@ -301,7 +309,7 @@ ggplot(data=Orange, aes(x=Orange$circumference, y=Orange$age)) +
 ##### Download “Temp” data set                   
 <br>
 
-##### Clean TEMP.csv data to get date into one consistant format
+##### Clean TEMP.csv data to get "Date" into one consistant format
 
 ```r
 temp_data <- read.csv("TEMP.csv",header=TRUE)
@@ -317,9 +325,8 @@ str(temp_data)
 ```
 
 ```r
-#monthly average temp from NA to 0
-temp_data$Monthly.AverageTemp[is.na(temp_data$Monthly.AverageTemp)] <- 0
-temp_data$Monthly.AverageTemp.Uncertainty[is.na(temp_data$Monthly.AverageTemp.Uncertainty)] <- 0
+#Any data set that is "NA" has been removed across the board
+temp_data <- temp_data[complete.cases(temp_data),]
 
 temp_data$date.clean <- as.Date(temp_data$Date, format = "%Y-%m-%d")
 temp_data.sub <- subset(temp_data,is.na(temp_data$date.clean))
@@ -341,13 +348,13 @@ str(final_temp_data)
 ```
 
 ```
-## 'data.frame':	574223 obs. of  6 variables:
+## 'data.frame':	541645 obs. of  6 variables:
 ##  $ X                              : int  742 743 744 745 746 747 748 749 750 751 ...
-##  $ Date                           : Factor w/ 3239 levels "10/1/1900","10/1/1901",..: 227 2328 2442 2556 2670 2784 2898 3012 3126 1 ...
+##  $ Date                           : Factor w/ 3167 levels "10/1/1900","10/1/1901",..: 227 2256 2370 2484 2598 2712 2826 2940 3054 1 ...
 ##  $ Monthly.AverageTemp            : num  -3.43 1.23 10.54 13.35 20.26 ...
 ##  $ Monthly.AverageTemp.Uncertainty: num  0.936 1.135 0.933 0.536 0.524 ...
-##  $ Country                        : Factor w/ 242 levels "Afghanistan",..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ date.clean                     : Factor w/ 3239 levels "1743-11-01","1743-12-01",..: 1875 1876 1877 1878 1879 1880 1881 1882 1883 1884 ...
+##  $ Country                        : Factor w/ 241 levels "Afghanistan",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ date.clean                     : Factor w/ 3167 levels "1743-11-01","1744-04-01",..: 1803 1804 1805 1806 1807 1808 1809 1810 1811 1812 ...
 ```
 <br>
 
@@ -356,7 +363,34 @@ str(final_temp_data)
 ```r
 #romve unwanted rows
 final_temp_data <- subset(final_temp_data,select = c("Date","Monthly.AverageTemp","Monthly.AverageTemp.Uncertainty","Country","date.clean"))
+final_temp_data$date.clean <-  as.Date(final_temp_data$date.clean)
+final_temp_data$date.month <- format(as.Date(final_temp_data$date.clean), "%d")
+final_temp_data$date.year <- format(as.Date(final_temp_data$date.clean), "%Y")
+final_temp_data02 <- subset(final_temp_data,final_temp_data$date.clean > '1900-12-31')
+temp_country <- sqldf("SELECT Country, [date.month] AS Month, (max([Monthly.AverageTemp])-min([Monthly.AverageTemp])) AS TempDiff FROM final_temp_data02 Group by Country, [date.month]")
 ```
+
+```
+## Warning: Quoted identifiers should have class SQL, use DBI::SQL() if the
+## caller performs the quoting.
+```
+
+```r
+top20_max_temp <- sqldf("Select src.Country, src.MaxTempDiff From (SELECT Country, max(TempDiff) MaxTempDiff FROM temp_country group by Country) src order by src.MaxTempdiff DESC LIMIT 20")
+max_country_temp <- sqldf("Select  tc.Country, tc.Month, tc.TempDiff FROM top20_max_temp as mt inner join temp_country as tc on mt.country = tc.country ")
+```
+<br>
+
+
+```r
+ggplot(data=max_country_temp, aes(x=max_country_temp$Month, y=max_country_temp$TempDiff , colour =Country)) +
+  #geom_point()+
+  geom_density(alpha=0.1,position = "stack")+
+  #geom_path() +
+  ggtitle("20 Countries w/ Highest Temp. Diff. per month") + xlab("Month") + ylab("Temp. Diff. between max and min")
+```
+
+![](CaseStudy02_files/figure-html/temp03-1.png)<!-- -->
 <br>
 <br>
 

@@ -19,7 +19,11 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "~/git/MSDS6306/CaseStudy02/Analysis/Data")
 require(tseries)
 require(ggplot2)
+require(dplyr)
+require(plyr)
+require(sqldf)
 require(lubridate)
+require(tcltk)
 sessionInfo()
 ```
 
@@ -188,9 +192,8 @@ ggplot(data=Orange, aes(x=Orange$circumference, y=Orange$age)) +
 temp_data <- read.csv("TEMP.csv",header=TRUE)
 str(temp_data)
 
-#monthly average temp from NA to 0
-temp_data$Monthly.AverageTemp[is.na(temp_data$Monthly.AverageTemp)] <- 0
-temp_data$Monthly.AverageTemp.Uncertainty[is.na(temp_data$Monthly.AverageTemp.Uncertainty)] <- 0
+#Any data set that is "NA" has been removed across the board
+temp_data <- temp_data[complete.cases(temp_data),]
 
 temp_data$date.clean <- as.Date(temp_data$Date, format = "%Y-%m-%d")
 temp_data.sub <- subset(temp_data,is.na(temp_data$date.clean))
@@ -216,6 +219,24 @@ str(final_temp_data)
 ```{r temp02, eval=TRUE, cache=TRUE, echo=TRUE}
 #romve unwanted rows
 final_temp_data <- subset(final_temp_data,select = c("Date","Monthly.AverageTemp","Monthly.AverageTemp.Uncertainty","Country","date.clean"))
+final_temp_data$date.clean <-  as.Date(final_temp_data$date.clean)
+final_temp_data$date.month <- format(as.Date(final_temp_data$date.clean), "%d")
+final_temp_data$date.year <- format(as.Date(final_temp_data$date.clean), "%Y")
+final_temp_data02 <- subset(final_temp_data,final_temp_data$date.clean > '1900-12-31')
+temp_country <- sqldf("SELECT Country, [date.month] AS Month, (max([Monthly.AverageTemp])-min([Monthly.AverageTemp])) AS TempDiff FROM final_temp_data02 Group by Country, [date.month]")
+top20_max_temp <- sqldf("Select src.Country, src.MaxTempDiff From (SELECT Country, max(TempDiff) MaxTempDiff FROM temp_country group by Country) src order by src.MaxTempdiff DESC LIMIT 20")
+max_country_temp <- sqldf("Select  tc.Country, tc.Month, tc.TempDiff FROM top20_max_temp as mt inner join temp_country as tc on mt.country = tc.country ")
+``` 
+<br>
+
+```{r temp03, eval=TRUE, cache=TRUE, echo=TRUE}
+ggplot(data=max_country_temp, aes(x=max_country_temp$Month, y=max_country_temp$TempDiff , colour =Country)) +
+  #geom_point()+
+  geom_density(alpha=0.1,position = "stack")+
+  #geom_path() +
+  ggtitle("20 Countries w/ Highest Temp. Diff. per month") + xlab("Month") + ylab("Temp. Diff. between max and min")
+
+
 ``` 
 <br>
 <br>
