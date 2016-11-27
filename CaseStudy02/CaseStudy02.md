@@ -162,7 +162,7 @@ volest3 <- getVol(100,ADP_return)
 #### Plot the results, overlaying the volatility curves on the data, just as was done in the S&P example.              
 
 ```r
-plot(volest, type="l", col="green", main="Volatility curves for ADP stock")
+plot(volest, type="l", col="green", main="Volatility curves for ADP stock", ylab = "Volitality Estimate")
 lines(volest2,type="l",col="red")
 lines(volest3, type = "l", col="blue")
 ```
