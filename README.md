@@ -3,7 +3,8 @@
 * Case Study 01     
 * Live Assignment Unit 10           
 * Live Assignment Unit 11           
-* Live Assignment Unit 13           
+* Live Assignment Unit 13 
+* Case Study 02         
 
 
 
