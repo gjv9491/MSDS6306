@@ -381,9 +381,7 @@ max_country_temp <- sqldf("Select  tc.Country, tc.Month, tc.TempDiff FROM top20_
 
 ```r
 ggplot(data=max_country_temp, aes(x=max_country_temp$Month, y=max_country_temp$TempDiff , colour =Country)) +
-  #geom_point()+
   geom_density(alpha=0.1,position = "stack")+
-  #geom_path() +
   ggtitle("20 Countries w/ Highest Temp. Diff. per month") + xlab("Month") + ylab("Temp. Diff. between max and min")
 ```
 
@@ -427,5 +425,29 @@ str(ustemp)
 ##  $ fahrenheit                     : num  28.9 40 48.9 56.8 67.6 ...
 ```
 <br>
+
+##### b) Calculate average land temperature by year and plot it. The original file has the average land temperature by month.                         
+
+```r
+usa_temp_year <- sqldf("SELECT Country, [date.year], avg([Monthly.AverageTemp]) as avgtemp, avg(fahrenheit) as avgtempinF FROM ustemp Group by [date.year]")
+```
+
+```
+## Warning: Quoted identifiers should have class SQL, use DBI::SQL() if the
+## caller performs the quoting.
+```
+
+```r
+ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgtemp, color=avgtemp) ) +
+  geom_point()+
+  ggtitle(" Avg. Temp. in U.S.A every year") + xlab("Year") + ylab("Average Temperature") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+![](CaseStudy02_files/figure-html/temp06-1.png)<!-- -->
+<br>
+
+
+
 
 
