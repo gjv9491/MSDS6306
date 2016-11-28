@@ -440,14 +440,16 @@ usa_temp_year <- sqldf("SELECT Country, [date.year], avg([Monthly.AverageTemp]) 
 ```r
 ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgtemp, color=avgtemp) ) +
   geom_point()+
-  ggtitle(" Avg. Temp. in U.S.A every year") + xlab("Year") + ylab("Average Temperature") +
+  ggtitle(" Avg. Temp. in U.S.A every year since 1990") + xlab("Year") + ylab("Average Temperature") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
 ![](CaseStudy02_files/figure-html/temp06-1.png)<!-- -->
 <br>
 
+##### c) Calculate the one year difference of average land temperature by year and provide the maximum difference (value) with corresponding two years.                        
 
+<br>
 
 
 
