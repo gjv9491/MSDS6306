@@ -240,9 +240,22 @@ remove(max_country_temp)
 ``` 
 <br>
 
-##### (i) Find the difference between the maximum and the minimum monthly average temperatures for each country and report/visualize top 20 countries with the maximum differences for the period since 1900. 
+##### (ii) Select a subset of data called “UStemp” where US land temperatures from 01/01/1990 in Temp data. Use UStemp dataset to answer the followings.         
 <br>
 
+```{r temp04, eval=TRUE, cache=TRUE, echo=TRUE}
+ustemp <- subset(final_temp_data02,(final_temp_data02$Country=="United States") & (final_temp_data02$date.clean > '1990-01-01'))
+getfahrenheit <- function(Celsius){
+  return(round(((Celsius*(9/5)) + 32), digits = 3))
+  }
+``` 
+<br>
+
+##### a) Create a new column to display the monthly average land temperatures in Fahrenheit (°F).
+```{r temp05, eval=TRUE, cache=TRUE, echo=TRUE}
+ustemp$fahrenheit <- getfahrenheit(ustemp$Monthly.AverageTemp)
+str(ustemp)
+``` 
 <br>
 
 
