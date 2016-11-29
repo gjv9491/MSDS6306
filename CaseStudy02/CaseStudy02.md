@@ -56,7 +56,7 @@ sessionInfo()
 <br>
 
 ### Question 1                                                        
-##### Create the X matrix and print it from SAS, R, and Python.                            
+#### Create the X matrix and print it from SAS, R, and Python.                            
 <br>
 
 #### SAS Code
@@ -120,7 +120,7 @@ print(X)
 <br>                
 
 ### Question 2                                                        
-##### Please do the following with your assigned stock. "ADP" 
+#### Please do the following with your assigned stock. "ADP" 
 <br>
 
 #### Download "ADP" data.
@@ -182,7 +182,7 @@ lines(volest3, type = "l", col="blue")
 <br>
 
 ### Question 3     
-##### The built-in data set called Orange in R is about the growth of orange trees. The Orange data frame has 3 columns of records of the growth of orange trees.                      
+#### The built-in data set called Orange in R is about the growth of orange trees. The Orange data frame has 3 columns of records of the growth of orange trees.                      
 <br>
 
 #### a) Calculate the mean and the median of the trunk circumferences for different size of the trees. (Tree)                  
@@ -303,10 +303,10 @@ ggplot(data=Orange, aes(x=Orange$circumference, y=Orange$age)) +
 <br>
 
 ### Question 4     
-##### Download “Temp” data set                   
+#### Download “Temp” data set                   
 <br>
 
-##### Clean TEMP.csv data to get "Date" into one consistant format
+#### Clean TEMP.csv data to get "Date" into one consistant format
 
 ```r
 temp_data <- read.csv("TEMP.csv",header=TRUE)
@@ -355,7 +355,7 @@ str(final_temp_data)
 ```
 <br>
 
-##### (i) Find the difference between the maximum and the minimum monthly average temperatures for each country and report/visualize top 20 countries with the maximum differences for the period since 1900. 
+#### (i) Find the difference between the maximum and the minimum monthly average temperatures for each country and report/visualize top 20 countries with the maximum differences for the period since 1900. 
 
 ```r
 #romve unwanted rows
@@ -379,6 +379,7 @@ top20_max_temp <- sqldf("Select src.Country, src.MaxTempDiff From (SELECT Countr
 
 
 ```r
+ustemp <- subset(final_temp_data02,(final_temp_data02$Country=="United States") & (final_temp_data02$date.clean >= "1990-01-01"))
 ggplot(data=top20_max_temp, aes(x=reorder(top20_max_temp$Country,top20_max_temp$MaxTempDiff ), y=top20_max_temp$MaxTempDiff , colour =MaxTempDiff)) +
   geom_point()+
   ggtitle("20 Countries w/ Highest Temp. Diff") + xlab("Countries") + ylab("Temp. Diff. between max and min") +
@@ -388,32 +389,20 @@ ggplot(data=top20_max_temp, aes(x=reorder(top20_max_temp$Country,top20_max_temp$
 ![](CaseStudy02_files/figure-html/temp03-1.png)<!-- -->
 <br>
 
-**Additional graph to visualize temperature change by month**
-
-```r
-remove(temp_country)
-remove(top20_max_temp)
-remove(max_country_temp)
-```
-
-```
-## Warning in remove(max_country_temp): object 'max_country_temp' not found
-```
-<br>
-
-##### (ii) Select a subset of data called “UStemp” where US land temperatures from 01/01/1990 in Temp data. Use UStemp dataset to answer the followings.         
+#### (ii) Select a subset of data called “UStemp” where US land temperatures from 01/01/1990 in Temp data. Use UStemp dataset to answer the followings.         
 <br>
 
 
 ```r
-ustemp <- subset(final_temp_data02,(final_temp_data02$Country=="United States") & (final_temp_data02$date.clean > '1990-01-01'))
+#To get all the values from 01/01/1990
+
 getfahrenheit <- function(Celsius){
   return(round(((Celsius*(9/5)) + 32), digits = 3))
   }
 ```
 <br>
 
-##### a) Create a new column to display the monthly average land temperatures in Fahrenheit (°F).
+#### a) Create a new column to display the monthly average land temperatures in Fahrenheit (°F).
 
 ```r
 ustemp$fahrenheit <- getfahrenheit(ustemp$Monthly.AverageTemp)
@@ -421,42 +410,36 @@ str(ustemp)
 ```
 
 ```
-## 'data.frame':	284 obs. of  8 variables:
-##  $ Date                           : Factor w/ 3167 levels "10/1/1900","10/1/1901",..: 2346 2460 2574 2688 2802 2916 3030 3144 91 204 ...
-##  $ Monthly.AverageTemp            : num  -1.75 4.46 9.38 13.77 19.78 ...
-##  $ Monthly.AverageTemp.Uncertainty: num  0.107 0.24 0.08 0.112 0.255 0.175 0.218 0.203 0.159 0.3 ...
+## 'data.frame':	285 obs. of  8 variables:
+##  $ Date                           : Factor w/ 3167 levels "10/1/1900","10/1/1901",..: 317 2346 2460 2574 2688 2802 2916 3030 3144 91 ...
+##  $ Monthly.AverageTemp            : num  -1.12 -1.75 4.46 9.38 13.77 ...
+##  $ Monthly.AverageTemp.Uncertainty: num  0.195 0.107 0.24 0.08 0.112 0.255 0.175 0.218 0.203 0.159 ...
 ##  $ Country                        : Factor w/ 241 levels "Afghanistan",..: 232 232 232 232 232 232 232 232 232 232 ...
-##  $ date.clean                     : Date, format: "1990-01-02" "1990-01-03" ...
-##  $ date.month                     : chr  "02" "03" "04" "05" ...
+##  $ date.clean                     : Date, format: "1990-01-01" "1990-01-02" ...
+##  $ date.month                     : chr  "01" "02" "03" "04" ...
 ##  $ date.year                      : chr  "1990" "1990" "1990" "1990" ...
-##  $ fahrenheit                     : num  28.9 40 48.9 56.8 67.6 ...
+##  $ fahrenheit                     : num  30 28.9 40 48.9 56.8 ...
 ```
 <br>
 
-##### b) Calculate average land temperature by year and plot it. The original file has the average land temperature by month.                         
+#### b) Calculate average land temperature by year and plot it. The original file has the average land temperature by month.                         
 
 ```r
 usa_temp_year <- sqldf("SELECT Country, [date.year], avg([Monthly.AverageTemp]) as avgtemp, avg(fahrenheit) as avgtempinF FROM ustemp Group by [date.year]")
-```
 
-```
-## Warning: Quoted identifiers should have class SQL, use DBI::SQL() if the
-## caller performs the quoting.
-```
-
-```r
-ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgtemp, color=avgtemp) ) +
+ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgtempinF, color=avgtempinF) ) +
   geom_point()+
-  ggtitle(" Avg. Temp. in U.S.A every year since 1990") + xlab("Year") + ylab("Average Temperature") +
+  ggtitle(" Avg. Temp. in U.S.A every year since 1990") + xlab("Year") + ylab("Average Temperature in (°F)") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
 ![](CaseStudy02_files/figure-html/temp06-1.png)<!-- -->
 <br>
 
-##### c) Calculate the one year difference of average land temperature by year and provide the maximum difference (value) with corresponding two years.                        
+#### c) Calculate the one year difference of average land temperature by year and provide the maximum difference (value) with corresponding two years.                        
 
 ```r
+# temperature (°C)
 i=1
 tempdiff=numeric(0)
 tempdiff=0
@@ -467,30 +450,132 @@ tempdiff=0
 
 usa_temp_year$avgdifftemp[is.na(usa_temp_year$avgdifftemp)] <- 0
 
+# temperature (°F)
+i=1
+tempdiffF=numeric(0)
+tempdiffF=0
+  for (i in 2:NROW(usa_temp_year)){
+   tempdiffF = abs(usa_temp_year[i,]$avgtempinF-usa_temp_year[(i-1),]$avgtempinF)
+  usa_temp_year$avgdifftempF[i] <- tempdiffF
+  }
+
+usa_temp_year$avgdifftempF[is.na(usa_temp_year$avgdifftempF)] <- 0
+
 str(usa_temp_year)
 ```
 
 ```
-## 'data.frame':	24 obs. of  5 variables:
-##  $ Country    : Factor w/ 241 levels "Afghanistan",..: 232 232 232 232 232 232 232 232 232 232 ...
-##  $ date.year  : chr  "1990" "1991" "1992" "1993" ...
-##  $ avgtemp    : num  10.49 9.49 9.06 8.87 9.27 ...
-##  $ avgtempinF : num  50.9 49.1 48.3 48 48.7 ...
-##  $ avgdifftemp: num  0 0.996 0.437 0.189 0.403 ...
+## 'data.frame':	24 obs. of  6 variables:
+##  $ Country     : Factor w/ 241 levels "Afghanistan",..: 232 232 232 232 232 232 232 232 232 232 ...
+##  $ date.year   : chr  "1990" "1991" "1992" "1993" ...
+##  $ avgtemp     : num  9.52 9.49 9.06 8.87 9.27 ...
+##  $ avgtempinF  : num  49.1 49.1 48.3 48 48.7 ...
+##  $ avgdifftemp : num  0 0.0279 0.4373 0.1891 0.4031 ...
+##  $ avgdifftempF: num  0 0.0504 0.7871 0.3405 0.7256 ...
 ```
 <br>
 
 **Plotting by Year and Temperature Difference in U.S.A**
 
 ```r
-ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgdifftemp, color=avgdifftemp) ) +
+ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgdifftempF, color=avgdifftempF) ) +
   geom_point()+
-  ggtitle("Years  w/ Highest Temp. Diff since 1990 ") + xlab("Year") + ylab("Temp. Diff. between max and min") +
+  ggtitle("Years  w/ Highest Temp. Diff. in U.S.A since 1990 ") + xlab("Year") + ylab("Temp. Diff. between max and min in (°F)") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
 ![](CaseStudy02_files/figure-html/temp08-1.png)<!-- -->
+
+```r
+remove(list = ls())
+```
 <br>
 
+#### (iii) Download “CityTemp” data set (check your SMU email). Find the difference between the maximum and the minimum temperatures for each major city and report/visualize top 20 cities with maximum differences for the period since 1900. 
+
+```r
+city.temp <- read.csv("CityTemp.csv",header=TRUE)
+str(city.temp)
+```
+
+```
+## 'data.frame':	237200 obs. of  7 variables:
+##  $ Date                           : Factor w/ 3239 levels "10/1/1900","10/1/1901",..: 1728 1729 1730 1731 1732 1733 1734 1735 1736 1737 ...
+##  $ Monthly.AverageTemp            : num  16 18.3 18.6 18.2 17.5 ...
+##  $ Monthly.AverageTemp.Uncertainty: num  1.54 1.53 2.16 1.69 1.24 ...
+##  $ City                           : Factor w/ 99 levels "Addis Abeba",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ Country                        : Factor w/ 48 levels "Afghanistan",..: 14 14 14 14 14 14 14 14 14 14 ...
+##  $ Latitude                       : Factor w/ 49 levels "0.80N","0.80S",..: 48 48 48 48 48 48 48 48 48 48 ...
+##  $ Longitude                      : Factor w/ 92 levels "0.00W","103.66E",..: 48 48 48 48 48 48 48 48 48 48 ...
+```
+
+```r
+#Any data set that is "NA" has been removed across the board
+city.temp <- city.temp[complete.cases(city.temp),]
+
+city.temp$date.clean <- as.Date(city.temp$Date, format = "%Y-%m-%d")
+city.temp.sub <- subset(city.temp,is.na(city.temp$date.clean))
+city.temp.sub02 <- subset(city.temp,!is.na(city.temp$date.clean))
+
+city.temp.sub$date.clean <- format(dmy(city.temp.sub$Date),"%Y-%m-%d")
+city.temp.sub$date.clean <- as.Date(city.temp.sub$date.clean, format = "%Y-%m-%d")
+
+final_city_temp <- rbind(city.temp.sub,city.temp.sub02)
+
+write.csv(final_city_temp,"final_city_temp.csv")
+
+remove(list = ls())
+
+final_city_temp <- read.csv("final_city_temp.csv",header=TRUE)
+str(final_city_temp)
+```
+
+```
+## 'data.frame':	226398 obs. of  9 variables:
+##  $ X                              : int  601 602 603 604 605 606 607 608 609 610 ...
+##  $ Date                           : Factor w/ 3167 levels "10/1/1900","10/1/1901",..: 227 2256 2370 2484 2598 2712 2826 2940 3054 1 ...
+##  $ Monthly.AverageTemp            : num  17 18.2 19.1 19.5 18.4 ...
+##  $ Monthly.AverageTemp.Uncertainty: num  1.073 0.772 0.954 0.887 2.247 ...
+##  $ City                           : Factor w/ 99 levels "Addis Abeba",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ Country                        : Factor w/ 48 levels "Afghanistan",..: 14 14 14 14 14 14 14 14 14 14 ...
+##  $ Latitude                       : Factor w/ 49 levels "0.80N","0.80S",..: 48 48 48 48 48 48 48 48 48 48 ...
+##  $ Longitude                      : Factor w/ 92 levels "0.00W","103.66E",..: 48 48 48 48 48 48 48 48 48 48 ...
+##  $ date.clean                     : Factor w/ 3167 levels "1743-11-01","1744-04-01",..: 1803 1804 1805 1806 1807 1808 1809 1810 1811 1812 ...
+```
+<br>
+
+
+```r
+#remove unwanted rows
+
+final_city_temp <- subset(final_city_temp,select = c("Date","Monthly.AverageTemp","Monthly.AverageTemp.Uncertainty","City","date.clean"))
+final_city_temp$date.clean <-  as.Date(final_city_temp$date.clean)
+final_city_temp$date.month <- format(as.Date(final_city_temp$date.clean), "%d")
+final_city_temp$date.year <- format(as.Date(final_city_temp$date.clean), "%Y")
+final_city_temp02 <- subset(final_city_temp,final_city_temp$date.clean > '1900-12-31')
+
+
+temp_city <- sqldf("SELECT City, (max([Monthly.AverageTemp])) as maxtemp, (min([Monthly.AverageTemp])) as mintemp, (max([Monthly.AverageTemp])) - (min([Monthly.AverageTemp])) as tempdiff  FROM final_city_temp02 Group by City")
+top20_city_temp <- sqldf("Select src.City, src.MaxTempDiff From (SELECT City, max(tempDiff) MaxTempDiff FROM temp_city group by City) src order by src.MaxTempdiff DESC LIMIT 20")
+```
+<br>
+
+**Plotting Top 20 Cities with Temperature Difference in the world**
+
+```r
+ggplot(data=top20_city_temp, aes(x=reorder(top20_city_temp$City,top20_city_temp$MaxTempDiff ), y=top20_city_temp$MaxTempDiff , colour =MaxTempDiff)) +
+  geom_point()+
+  ggtitle("20 Cities w/ Highest Temp. Diff") + xlab("Cities") + ylab("Temp. Diff. between max and min") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+![](CaseStudy02_files/figure-html/city03-1.png)<!-- -->
+
+```r
+remove(list = ls())
+```
+<br>
+
+#### (iv) Compare the two graphs in (i) and (iii)  and comment it.
 
 
