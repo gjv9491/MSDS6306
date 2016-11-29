@@ -306,64 +306,87 @@ ggplot(data=Orange, aes(x=Orange$circumference, y=Orange$age)) +
 #### Download “Temp” data set                   
 <br>
 
-#### Clean TEMP.csv data to get "Date" into one consistant format
+#### Clean TEMP.csv data to get "Date" into one consistant format, before analysis can begin
 
 ```r
+#load TEMP.csv file
 temp_data <- read.csv("TEMP.csv",header=TRUE)
-str(temp_data)
+head(temp_data)
 ```
 
 ```
-## 'data.frame':	574223 obs. of  4 variables:
-##  $ Date                           : Factor w/ 3239 levels "10/1/1900","10/1/1901",..: 1587 1588 1589 1590 1591 1592 1593 1594 1595 1596 ...
-##  $ Monthly.AverageTemp            : num  13 NA 23.9 26.9 24.9 ...
-##  $ Monthly.AverageTemp.Uncertainty: num  2.59 NA 2.51 2.88 2.99 ...
-##  $ Country                        : Factor w/ 242 levels "Afghanistan",..: 1 1 1 1 1 1 1 1 1 1 ...
+##         Date Monthly.AverageTemp Monthly.AverageTemp.Uncertainty
+## 1 1838-04-01              13.008                           2.586
+## 2 1838-05-01                  NA                              NA
+## 3 1838-06-01              23.950                           2.510
+## 4 1838-07-01              26.877                           2.883
+## 5 1838-08-01              24.938                           2.992
+## 6 1838-09-01              18.981                           2.538
+##       Country
+## 1 Afghanistan
+## 2 Afghanistan
+## 3 Afghanistan
+## 4 Afghanistan
+## 5 Afghanistan
+## 6 Afghanistan
 ```
 
 ```r
 #Any data set that is "NA" has been removed across the board
 temp_data <- temp_data[complete.cases(temp_data),]
 
+#cleaning up date format
 temp_data$date.clean <- as.Date(temp_data$Date, format = "%Y-%m-%d")
 temp_data.sub <- subset(temp_data,is.na(temp_data$date.clean))
 temp_data.sub02 <- subset(temp_data,!is.na(temp_data$date.clean))
-
 temp_data.sub$date.clean <- format(dmy(temp_data.sub$Date),"%Y-%m-%d")
 temp_data.sub$date.clean <- as.Date(temp_data.sub$date.clean, format = "%Y-%m-%d")
 
-
-
+#combining the 2 data set
 final_temp_data <- rbind(temp_data.sub,temp_data.sub02)
 
+#write to a clean file
 write.csv(final_temp_data,"final_temp_data.csv")
-
 remove(list = ls())
 
+#loading a clean file for analysis
 final_temp_data <- read.csv("final_temp_data.csv",header=TRUE)
-str(final_temp_data)
+head(final_temp_data)
 ```
 
 ```
-## 'data.frame':	541645 obs. of  6 variables:
-##  $ X                              : int  742 743 744 745 746 747 748 749 750 751 ...
-##  $ Date                           : Factor w/ 3167 levels "10/1/1900","10/1/1901",..: 227 2256 2370 2484 2598 2712 2826 2940 3054 1 ...
-##  $ Monthly.AverageTemp            : num  -3.43 1.23 10.54 13.35 20.26 ...
-##  $ Monthly.AverageTemp.Uncertainty: num  0.936 1.135 0.933 0.536 0.524 ...
-##  $ Country                        : Factor w/ 241 levels "Afghanistan",..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ date.clean                     : Factor w/ 3167 levels "1743-11-01","1744-04-01",..: 1803 1804 1805 1806 1807 1808 1809 1810 1811 1812 ...
+##     X     Date Monthly.AverageTemp Monthly.AverageTemp.Uncertainty
+## 1 742 1/1/1900              -3.428                           0.936
+## 2 743 2/1/1900               1.234                           1.135
+## 3 744 3/1/1900              10.545                           0.933
+## 4 745 4/1/1900              13.352                           0.536
+## 5 746 5/1/1900              20.260                           0.524
+## 6 747 6/1/1900              24.448                           0.944
+##       Country date.clean
+## 1 Afghanistan 1900-01-01
+## 2 Afghanistan 1900-01-02
+## 3 Afghanistan 1900-01-03
+## 4 Afghanistan 1900-01-04
+## 5 Afghanistan 1900-01-05
+## 6 Afghanistan 1900-01-06
 ```
 <br>
 
 #### (i) Find the difference between the maximum and the minimum monthly average temperatures for each country and report/visualize top 20 countries with the maximum differences for the period since 1900. 
 
 ```r
-#romve unwanted rows
+#removing unwanted rows
 final_temp_data <- subset(final_temp_data,select = c("Date","Monthly.AverageTemp","Monthly.AverageTemp.Uncertainty","Country","date.clean"))
+
+#verifying date formats
 final_temp_data$date.clean <-  as.Date(final_temp_data$date.clean)
 final_temp_data$date.month <- format(as.Date(final_temp_data$date.clean), "%d")
 final_temp_data$date.year <- format(as.Date(final_temp_data$date.clean), "%Y")
+
+#filtering to data sets > 1900
 final_temp_data02 <- subset(final_temp_data,final_temp_data$date.clean > '1900-12-31')
+
+#grouping by country for plot and analysis
 temp_country <- sqldf("SELECT Country, (max([Monthly.AverageTemp])) as maxtemp, (min([Monthly.AverageTemp])) as mintemp, (max([Monthly.AverageTemp])) - (min([Monthly.AverageTemp])) as tempdiff  FROM final_temp_data02 Group by Country")
 ```
 
@@ -379,7 +402,10 @@ top20_max_temp <- sqldf("Select src.Country, src.MaxTempDiff From (SELECT Countr
 
 
 ```r
+#filtering data set for United states and date range greater than 1990
 ustemp <- subset(final_temp_data02,(final_temp_data02$Country=="United States") & (final_temp_data02$date.clean >= "1990-01-01"))
+
+#plot 01
 ggplot(data=top20_max_temp, aes(x=reorder(top20_max_temp$Country,top20_max_temp$MaxTempDiff ), y=top20_max_temp$MaxTempDiff , colour =MaxTempDiff)) +
   geom_point()+
   ggtitle("20 Countries w/ Highest Temp. Diff") + xlab("Countries") + ylab("Temp. Diff. between max and min") +
@@ -394,8 +420,7 @@ ggplot(data=top20_max_temp, aes(x=reorder(top20_max_temp$Country,top20_max_temp$
 
 
 ```r
-#To get all the values from 01/01/1990
-
+#getfahrenheit function takes in celsius and returns fahrenheit
 getfahrenheit <- function(Celsius){
   return(round(((Celsius*(9/5)) + 32), digits = 3))
   }
@@ -405,28 +430,36 @@ getfahrenheit <- function(Celsius){
 #### a) Create a new column to display the monthly average land temperatures in Fahrenheit (°F).
 
 ```r
+#converting celsius to fahrenheit
 ustemp$fahrenheit <- getfahrenheit(ustemp$Monthly.AverageTemp)
-str(ustemp)
+head(ustemp)
 ```
 
 ```
-## 'data.frame':	285 obs. of  8 variables:
-##  $ Date                           : Factor w/ 3167 levels "10/1/1900","10/1/1901",..: 317 2346 2460 2574 2688 2802 2916 3030 3144 91 ...
-##  $ Monthly.AverageTemp            : num  -1.12 -1.75 4.46 9.38 13.77 ...
-##  $ Monthly.AverageTemp.Uncertainty: num  0.195 0.107 0.24 0.08 0.112 0.255 0.175 0.218 0.203 0.159 ...
-##  $ Country                        : Factor w/ 241 levels "Afghanistan",..: 232 232 232 232 232 232 232 232 232 232 ...
-##  $ date.clean                     : Date, format: "1990-01-01" "1990-01-02" ...
-##  $ date.month                     : chr  "01" "02" "03" "04" ...
-##  $ date.year                      : chr  "1990" "1990" "1990" "1990" ...
-##  $ fahrenheit                     : num  30 28.9 40 48.9 56.8 ...
+##            Date Monthly.AverageTemp Monthly.AverageTemp.Uncertainty
+## 314893 1/1/1990              -1.123                           0.195
+## 314894 2/1/1990              -1.747                           0.107
+## 314895 3/1/1990               4.465                           0.240
+## 314896 4/1/1990               9.380                           0.080
+## 314897 5/1/1990              13.772                           0.112
+## 314898 6/1/1990              19.780                           0.255
+##              Country date.clean date.month date.year fahrenheit
+## 314893 United States 1990-01-01         01      1990     29.979
+## 314894 United States 1990-01-02         02      1990     28.855
+## 314895 United States 1990-01-03         03      1990     40.037
+## 314896 United States 1990-01-04         04      1990     48.884
+## 314897 United States 1990-01-05         05      1990     56.790
+## 314898 United States 1990-01-06         06      1990     67.604
 ```
 <br>
 
 #### b) Calculate average land temperature by year and plot it. The original file has the average land temperature by month.                         
 
 ```r
+#preparing data set for analysis
 usa_temp_year <- sqldf("SELECT Country, [date.year], avg([Monthly.AverageTemp]) as avgtemp, avg(fahrenheit) as avgtempinF FROM ustemp Group by [date.year]")
 
+#plot 02
 ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgtempinF, color=avgtempinF) ) +
   geom_point()+
   ggtitle(" Avg. Temp. in U.S.A every year since 1990") + xlab("Year") + ylab("Average Temperature in (°F)") +
@@ -461,23 +494,24 @@ tempdiffF=0
 
 usa_temp_year$avgdifftempF[is.na(usa_temp_year$avgdifftempF)] <- 0
 
-str(usa_temp_year)
+head(usa_temp_year)
 ```
 
 ```
-## 'data.frame':	24 obs. of  6 variables:
-##  $ Country     : Factor w/ 241 levels "Afghanistan",..: 232 232 232 232 232 232 232 232 232 232 ...
-##  $ date.year   : chr  "1990" "1991" "1992" "1993" ...
-##  $ avgtemp     : num  9.52 9.49 9.06 8.87 9.27 ...
-##  $ avgtempinF  : num  49.1 49.1 48.3 48 48.7 ...
-##  $ avgdifftemp : num  0 0.0279 0.4373 0.1891 0.4031 ...
-##  $ avgdifftempF: num  0 0.0504 0.7871 0.3405 0.7256 ...
+##         Country date.year  avgtemp avgtempinF avgdifftemp avgdifftempF
+## 1 United States      1990 9.521583   49.13900  0.00000000   0.00000000
+## 2 United States      1991 9.493667   49.08858  0.02791667   0.05041667
+## 3 United States      1992 9.056333   48.30150  0.43733333   0.78708333
+## 4 United States      1993 8.867250   47.96100  0.18908333   0.34050000
+## 5 United States      1994 9.270333   48.68658  0.40308333   0.72558333
+## 6 United States      1995 9.331000   48.79583  0.06066667   0.10925000
 ```
 <br>
 
 **Plotting by Year and Temperature Difference in U.S.A**
 
 ```r
+#plot
 ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgdifftempF, color=avgdifftempF) ) +
   geom_point()+
   ggtitle("Years  w/ Highest Temp. Diff. in U.S.A since 1990 ") + xlab("Year") + ylab("Temp. Diff. between max and min in (°F)") +
@@ -487,6 +521,7 @@ ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgdifftemp
 ![](CaseStudy02_files/figure-html/temp08-1.png)<!-- -->
 
 ```r
+#cleanup before city analysis
 remove(list = ls())
 ```
 <br>
@@ -494,53 +529,66 @@ remove(list = ls())
 #### (iii) Download “CityTemp” data set (check your SMU email). Find the difference between the maximum and the minimum temperatures for each major city and report/visualize top 20 cities with maximum differences for the period since 1900. 
 
 ```r
+#load city data 
 city.temp <- read.csv("CityTemp.csv",header=TRUE)
-str(city.temp)
+head(city.temp)
 ```
 
 ```
-## 'data.frame':	237200 obs. of  7 variables:
-##  $ Date                           : Factor w/ 3239 levels "10/1/1900","10/1/1901",..: 1728 1729 1730 1731 1732 1733 1734 1735 1736 1737 ...
-##  $ Monthly.AverageTemp            : num  16 18.3 18.6 18.2 17.5 ...
-##  $ Monthly.AverageTemp.Uncertainty: num  1.54 1.53 2.16 1.69 1.24 ...
-##  $ City                           : Factor w/ 99 levels "Addis Abeba",..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ Country                        : Factor w/ 48 levels "Afghanistan",..: 14 14 14 14 14 14 14 14 14 14 ...
-##  $ Latitude                       : Factor w/ 49 levels "0.80N","0.80S",..: 48 48 48 48 48 48 48 48 48 48 ...
-##  $ Longitude                      : Factor w/ 92 levels "0.00W","103.66E",..: 48 48 48 48 48 48 48 48 48 48 ...
+##         Date Monthly.AverageTemp Monthly.AverageTemp.Uncertainty
+## 1 1850-01-01              15.986                           1.537
+## 2 1850-02-01              18.345                           1.527
+## 3 1850-03-01              18.632                           2.162
+## 4 1850-04-01              18.154                           1.693
+## 5 1850-05-01              17.480                           1.237
+## 6 1850-06-01              17.183                           1.252
+##          City  Country Latitude Longitude
+## 1 Addis Abeba Ethiopia    8.84N    38.11E
+## 2 Addis Abeba Ethiopia    8.84N    38.11E
+## 3 Addis Abeba Ethiopia    8.84N    38.11E
+## 4 Addis Abeba Ethiopia    8.84N    38.11E
+## 5 Addis Abeba Ethiopia    8.84N    38.11E
+## 6 Addis Abeba Ethiopia    8.84N    38.11E
 ```
 
 ```r
 #Any data set that is "NA" has been removed across the board
 city.temp <- city.temp[complete.cases(city.temp),]
 
+#cleaning up date format
 city.temp$date.clean <- as.Date(city.temp$Date, format = "%Y-%m-%d")
 city.temp.sub <- subset(city.temp,is.na(city.temp$date.clean))
 city.temp.sub02 <- subset(city.temp,!is.na(city.temp$date.clean))
-
 city.temp.sub$date.clean <- format(dmy(city.temp.sub$Date),"%Y-%m-%d")
 city.temp.sub$date.clean <- as.Date(city.temp.sub$date.clean, format = "%Y-%m-%d")
 
+#combining the 2 data set
 final_city_temp <- rbind(city.temp.sub,city.temp.sub02)
 
+#write to a clean file
 write.csv(final_city_temp,"final_city_temp.csv")
-
 remove(list = ls())
 
+#loading a clean file for analysis
 final_city_temp <- read.csv("final_city_temp.csv",header=TRUE)
-str(final_city_temp)
+head(final_city_temp)
 ```
 
 ```
-## 'data.frame':	226398 obs. of  9 variables:
-##  $ X                              : int  601 602 603 604 605 606 607 608 609 610 ...
-##  $ Date                           : Factor w/ 3167 levels "10/1/1900","10/1/1901",..: 227 2256 2370 2484 2598 2712 2826 2940 3054 1 ...
-##  $ Monthly.AverageTemp            : num  17 18.2 19.1 19.5 18.4 ...
-##  $ Monthly.AverageTemp.Uncertainty: num  1.073 0.772 0.954 0.887 2.247 ...
-##  $ City                           : Factor w/ 99 levels "Addis Abeba",..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ Country                        : Factor w/ 48 levels "Afghanistan",..: 14 14 14 14 14 14 14 14 14 14 ...
-##  $ Latitude                       : Factor w/ 49 levels "0.80N","0.80S",..: 48 48 48 48 48 48 48 48 48 48 ...
-##  $ Longitude                      : Factor w/ 92 levels "0.00W","103.66E",..: 48 48 48 48 48 48 48 48 48 48 ...
-##  $ date.clean                     : Factor w/ 3167 levels "1743-11-01","1744-04-01",..: 1803 1804 1805 1806 1807 1808 1809 1810 1811 1812 ...
+##     X     Date Monthly.AverageTemp Monthly.AverageTemp.Uncertainty
+## 1 601 1/1/1900              17.019                           1.073
+## 2 602 2/1/1900              18.153                           0.772
+## 3 603 3/1/1900              19.110                           0.954
+## 4 604 4/1/1900              19.492                           0.887
+## 5 605 5/1/1900              18.353                           2.247
+## 6 606 6/1/1900              17.619                           0.948
+##          City  Country Latitude Longitude date.clean
+## 1 Addis Abeba Ethiopia    8.84N    38.11E 1900-01-01
+## 2 Addis Abeba Ethiopia    8.84N    38.11E 1900-01-02
+## 3 Addis Abeba Ethiopia    8.84N    38.11E 1900-01-03
+## 4 Addis Abeba Ethiopia    8.84N    38.11E 1900-01-04
+## 5 Addis Abeba Ethiopia    8.84N    38.11E 1900-01-05
+## 6 Addis Abeba Ethiopia    8.84N    38.11E 1900-01-06
 ```
 <br>
 
@@ -577,5 +625,18 @@ remove(list = ls())
 <br>
 
 #### (iv) Compare the two graphs in (i) and (iii)  and comment it.
+
+When comparing both the graphs from 4.1 and 4.3, the following can be understood.                          
+
+* The cities from top 20 countires do not make it to the list of the top 20 cities with maximum temperature difference                                      
+* While Kazakhstan and Mongolia are top 2 countries with maximum temperature differences, none of the cities made to top 5 of the cities with similar temperature calculations.           
+* While China didn’t make to the top 20 countries list, but 3 of China’s cities – Harbin, Changchun, and Shenyang made to top 5 cities list.                                      
+* Russia and Canada and their cities made to top 10 in both charts.                                        
+                          
+There is sufficient evidence to conclude that global warming is prevelant, more so in the northern hemisphere closer to the artic, where countries such as Russia, Canada, Mongolia are affected so are there cities. However overall comparison of temperatures at a Country level and city level, not necessarily apply to all regions within the country. A more detailed analysis at Geographical Region level may be required to evaluate for better conclusions.
+
+<br>
+<br>
+<br>
 
 
