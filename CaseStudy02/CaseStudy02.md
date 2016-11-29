@@ -82,7 +82,7 @@ print x;
 run;
 quit;
 ```
-![alt text](https://github.com/gjv9491/MSDS6306/blob/casestudy02/CaseStudy02/CaseStudy02_files/figure-html/SASQ01-1.png "SAS output")
+![alt text](https://github.com/gjv9491/MSDS6306/blob/master/CaseStudy02/CaseStudy02_files/figure-html/SASQ01-1.png "SAS output")
 <br>
 
 #### R Code
@@ -115,7 +115,7 @@ new_matrix = np.matrix(new_array)
 X = new_matrix.reshape(3,4)
 print(X)
 ```
-![alt text](https://github.com/gjv9491/MSDS6306/blob/casestudy02/CaseStudy02/CaseStudy02_files/figure-html/PYTHONQ01-1.png "Python output")
+![alt text](https://github.com/gjv9491/MSDS6306/blob/master/CaseStudy02/CaseStudy02_files/figure-html/PYTHONQ01-1.png "Python output")
 <br>                  
 <br>  
 <br>    
