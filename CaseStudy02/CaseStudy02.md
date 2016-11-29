@@ -55,8 +55,8 @@ sessionInfo()
 <br>
 <br>
 
-### Question 1                                                        
-#### Create the X matrix and print it from SAS, R, and Python.                            
+### **Question 1**                                                        
+#### **Create the X matrix and print it from SAS, R, and Python.**                                                  
 <br>
 
 #### SAS Code
@@ -117,13 +117,14 @@ print(X)
 ```
 ![alt text](https://github.com/gjv9491/MSDS6306/blob/casestudy02/CaseStudy02/CaseStudy02_files/figure-html/PYTHONQ01-1.png "Python output")
 <br>                  
-<br>                
+<br>  
+<br>    
 
-### Question 2                                                        
-#### Please do the following with your assigned stock. "ADP" 
+### **Question 2**                                                        
+#### **Please do the following with your assigned stock. "ADP"** 
 <br>
 
-#### Download "ADP" data.
+#### **Download "ADP" data.**
 
 ```r
 ADP_data <- get.hist.quote('ADP',quote="Close")
@@ -134,7 +135,7 @@ ADP_data <- get.hist.quote('ADP',quote="Close")
 ```
 <br>
 
-#### Calculate log returns.                        
+#### **Calculate log returns.**                        
 
 ```r
 ADP_return <- log(lag(ADP_data)) - log(ADP_data)
@@ -142,7 +143,7 @@ ADP_volatility <- sd(ADP_return) * sqrt(250) * 100
 ```
 <br>
 
-#### Calculate volatility measure.
+#### **Calculate volatility measure.**
 
 ```r
 getVol <- function(d, log_returns){
@@ -160,7 +161,7 @@ getVol <- function(d, log_returns){
 ```
 <br>
 
-#### Calculate volatility over entire length of series for various three different decay factors.
+#### **Calculate volatility over entire length of series for various three different decay factors.**
 
 ```r
 volest <- getVol(10,ADP_return)
@@ -169,7 +170,7 @@ volest3 <- getVol(100,ADP_return)
 ```
 <br>                
 
-#### Plot the results, overlaying the volatility curves on the data, just as was done in the S&P example.              
+#### **Plot the results, overlaying the volatility curves on the data, just as was done in the S&P example.**              
 
 ```r
 plot(volest, type="l", col="green", main="Volatility curves for ADP stock", ylab = "Volitality Estimate")
@@ -180,12 +181,13 @@ lines(volest3, type = "l", col="blue")
 ![](CaseStudy02_files/figure-html/radp05-1.png)<!-- -->
 <br>  
 <br>
-
-### Question 3     
-#### The built-in data set called Orange in R is about the growth of orange trees. The Orange data frame has 3 columns of records of the growth of orange trees.                      
 <br>
 
-#### a) Calculate the mean and the median of the trunk circumferences for different size of the trees. (Tree)                  
+### **Question 3**     
+#### **The built-in data set called Orange in R is about the growth of orange trees. The Orange data frame has 3 columns of records of the growth of orange trees.**                      
+<br>
+
+#### **a) Calculate the mean and the median of the trunk circumferences for different size of the trees. (Tree)**                  
 
 ```r
 data("Orange")
@@ -258,7 +260,7 @@ orange_median[order(names(orange_median))]
 ```
 <br>         
 
-#### b) Make a scatter plot of the trunk circumferences against the age of the tree. Use different plotting symbols for different size of trees.                   
+#### **b) Make a scatter plot of the trunk circumferences against the age of the tree. Use different plotting symbols for different size of trees.**                   
 
 ```r
 is.numeric(Orange$Tree)
@@ -288,7 +290,7 @@ ggplot(data=Orange, aes(x=Orange$circumference, y=Orange$age)) +
 ![](CaseStudy02_files/figure-html/tree02-1.png)<!-- -->
 <br>                  
 
-#### c) Display the trunk circumferences on a comparative boxplot against tree. Be sure you order the boxplots in the increasing order of maximum diameter.            
+#### **c) Display the trunk circumferences on a comparative boxplot against tree. Be sure you order the boxplots in the increasing order of maximum diameter.**            
 
 ```r
   ggplot(Orange, aes(reorder(Orange$Tree,Orange$circumference) , Orange$circumference, fill = reorder(Orange$Tree,Orange$order.tree))) +  
@@ -301,12 +303,13 @@ ggplot(data=Orange, aes(x=Orange$circumference, y=Orange$age)) +
 ![](CaseStudy02_files/figure-html/tree03-1.png)<!-- -->
 <br>  
 <br>
-
-### Question 4     
-#### Download “Temp” data set                   
 <br>
 
-#### Clean TEMP.csv data to get "Date" into one consistant format, before analysis can begin
+### **Question 4**     
+#### **Download “Temp” data set**                   
+<br>
+
+#### **Clean TEMP.csv data to get "Date" into one consistant format, before analysis can begin**
 
 ```r
 #load TEMP.csv file
@@ -372,7 +375,7 @@ head(final_temp_data)
 ```
 <br>
 
-#### (i) Find the difference between the maximum and the minimum monthly average temperatures for each country and report/visualize top 20 countries with the maximum differences for the period since 1900. 
+#### **(i) Find the difference between the maximum and the minimum monthly average temperatures for each country and report/visualize top 20 countries with the maximum differences for the period since 1900.** 
 
 ```r
 #removing unwanted rows
@@ -415,7 +418,7 @@ ggplot(data=top20_max_temp, aes(x=reorder(top20_max_temp$Country,top20_max_temp$
 ![](CaseStudy02_files/figure-html/temp03-1.png)<!-- -->
 <br>
 
-#### (ii) Select a subset of data called “UStemp” where US land temperatures from 01/01/1990 in Temp data. Use UStemp dataset to answer the followings.         
+#### **(ii) Select a subset of data called “UStemp” where US land temperatures from 01/01/1990 in Temp data. Use UStemp dataset to answer the followings.**         
 <br>
 
 
@@ -427,7 +430,7 @@ getfahrenheit <- function(Celsius){
 ```
 <br>
 
-#### a) Create a new column to display the monthly average land temperatures in Fahrenheit (°F).
+#### **a) Create a new column to display the monthly average land temperatures in Fahrenheit (°F).**
 
 ```r
 #converting celsius to fahrenheit
@@ -453,7 +456,7 @@ head(ustemp)
 ```
 <br>
 
-#### b) Calculate average land temperature by year and plot it. The original file has the average land temperature by month.                         
+#### **b) Calculate average land temperature by year and plot it. The original file has the average land temperature by month.**                         
 
 ```r
 #preparing data set for analysis
@@ -469,7 +472,7 @@ ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgtempinF,
 ![](CaseStudy02_files/figure-html/temp06-1.png)<!-- -->
 <br>
 
-#### c) Calculate the one year difference of average land temperature by year and provide the maximum difference (value) with corresponding two years.                        
+#### **c) Calculate the one year difference of average land temperature by year and provide the maximum difference (value) with corresponding two years.**                        
 
 ```r
 # temperature (°C)
@@ -548,7 +551,7 @@ remove(list = ls())
 ```
 <br>
 
-#### (iii) Download “CityTemp” data set (check your SMU email). Find the difference between the maximum and the minimum temperatures for each major city and report/visualize top 20 cities with maximum differences for the period since 1900. 
+#### **(iii) Download “CityTemp” data set (check your SMU email). Find the difference between the maximum and the minimum temperatures for each major city and report/visualize top 20 cities with maximum differences for the period since 1900.** 
 
 ```r
 #load city data 
@@ -646,7 +649,7 @@ remove(list = ls())
 ```
 <br>
 
-#### (iv) Compare the two graphs in (i) and (iii)  and comment it.
+#### **(iv) Compare the two graphs in (i) and (iii)  and comment it.**
 
 When comparing both the graphs from 4.1 and 4.3, the following can be understood.                          
 
