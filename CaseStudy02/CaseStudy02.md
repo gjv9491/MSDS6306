@@ -380,12 +380,24 @@ max_country_temp <- sqldf("Select  tc.Country, tc.Month, tc.TempDiff FROM top20_
 
 
 ```r
+ggplot(data=top20_max_temp, aes(x=top20_max_temp$Country, y=top20_max_temp$MaxTempDiff , colour =MaxTempDiff)) +
+  geom_point()+
+  ggtitle("20 Countries w/ Highest Temp. Diff") + xlab("Countries") + ylab("Temp. Diff. between max and min") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+![](CaseStudy02_files/figure-html/temp03-1.png)<!-- -->
+<br>
+
+**Additional graph to visualize temperature change by month**
+
+```r
 ggplot(data=max_country_temp, aes(x=max_country_temp$Month, y=max_country_temp$TempDiff , colour =Country)) +
   geom_density(alpha=0.1,position = "stack")+
   ggtitle("20 Countries w/ Highest Temp. Diff. per month") + xlab("Month") + ylab("Temp. Diff. between max and min")
 ```
 
-![](CaseStudy02_files/figure-html/temp03-1.png)<!-- -->
+![](CaseStudy02_files/figure-html/addtemp03-1.png)<!-- -->
 
 ```r
 remove(temp_country)
@@ -449,6 +461,19 @@ ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgtemp, co
 
 ##### c) Calculate the one year difference of average land temperature by year and provide the maximum difference (value) with corresponding two years.                        
 
+```r
+lagavgtempdiff <- function(averagetemp){
+i=1
+tempdiff=numeric(0)
+tempdiff=0
+for (i in 2:NROW(averagetemp)){
+  tempdiff = abs(averagetemp[i,]$avgtemp-averagetemp[(i-1),]$avgtemp)
+}
+ return(round(tempdiff, digits = 3))
+}
+
+usa_temp_year$difftemp <- lagavgtempdiff(usa_temp_year)
+```
 <br>
 
 
