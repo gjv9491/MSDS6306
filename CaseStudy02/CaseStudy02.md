@@ -364,7 +364,7 @@ final_temp_data$date.clean <-  as.Date(final_temp_data$date.clean)
 final_temp_data$date.month <- format(as.Date(final_temp_data$date.clean), "%d")
 final_temp_data$date.year <- format(as.Date(final_temp_data$date.clean), "%Y")
 final_temp_data02 <- subset(final_temp_data,final_temp_data$date.clean > '1900-12-31')
-temp_country <- sqldf("SELECT Country, [date.month] AS Month, (max([Monthly.AverageTemp])-min([Monthly.AverageTemp])) AS TempDiff FROM final_temp_data02 Group by Country, [date.month]")
+temp_country <- sqldf("SELECT Country, (max([Monthly.AverageTemp])) as maxtemp, (min([Monthly.AverageTemp])) as mintemp, (max([Monthly.AverageTemp])) - (min([Monthly.AverageTemp])) as tempdiff  FROM final_temp_data02 Group by Country")
 ```
 
 ```
@@ -373,8 +373,8 @@ temp_country <- sqldf("SELECT Country, [date.month] AS Month, (max([Monthly.Aver
 ```
 
 ```r
-top20_max_temp <- sqldf("Select src.Country, src.MaxTempDiff From (SELECT Country, max(TempDiff) MaxTempDiff FROM temp_country group by Country) src order by src.MaxTempdiff DESC LIMIT 20")
-max_country_temp <- sqldf("Select  tc.Country, tc.Month, tc.TempDiff FROM top20_max_temp as mt inner join temp_country as tc on mt.country = tc.country ")
+top20_max_temp <- sqldf("Select src.Country, src.MaxTempDiff From (SELECT Country, max(tempDiff) MaxTempDiff FROM temp_country group by Country) src order by src.MaxTempdiff DESC LIMIT 20")
+#max_country_temp <- sqldf("Select  tc.Country, tc.Month, tc.TempDiff FROM top20_max_temp as mt inner join temp_country as tc on mt.country = tc.country ")
 ```
 <br>
 
@@ -392,17 +392,13 @@ ggplot(data=top20_max_temp, aes(x=top20_max_temp$Country, y=top20_max_temp$MaxTe
 **Additional graph to visualize temperature change by month**
 
 ```r
-ggplot(data=max_country_temp, aes(x=max_country_temp$Month, y=max_country_temp$TempDiff , colour =Country)) +
-  geom_density(alpha=0.1,position = "stack")+
-  ggtitle("20 Countries w/ Highest Temp. Diff. per month") + xlab("Month") + ylab("Temp. Diff. between max and min")
-```
-
-![](CaseStudy02_files/figure-html/addtemp03-1.png)<!-- -->
-
-```r
 remove(temp_country)
 remove(top20_max_temp)
 remove(max_country_temp)
+```
+
+```
+## Warning in remove(max_country_temp): object 'max_country_temp' not found
 ```
 <br>
 
