@@ -374,13 +374,12 @@ temp_country <- sqldf("SELECT Country, (max([Monthly.AverageTemp])) as maxtemp, 
 
 ```r
 top20_max_temp <- sqldf("Select src.Country, src.MaxTempDiff From (SELECT Country, max(tempDiff) MaxTempDiff FROM temp_country group by Country) src order by src.MaxTempdiff DESC LIMIT 20")
-#max_country_temp <- sqldf("Select  tc.Country, tc.Month, tc.TempDiff FROM top20_max_temp as mt inner join temp_country as tc on mt.country = tc.country ")
 ```
 <br>
 
 
 ```r
-ggplot(data=top20_max_temp, aes(x=top20_max_temp$Country, y=top20_max_temp$MaxTempDiff , colour =MaxTempDiff)) +
+ggplot(data=top20_max_temp, aes(x=reorder(top20_max_temp$Country,top20_max_temp$MaxTempDiff ), y=top20_max_temp$MaxTempDiff , colour =MaxTempDiff)) +
   geom_point()+
   ggtitle("20 Countries w/ Highest Temp. Diff") + xlab("Countries") + ylab("Temp. Diff. between max and min") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -458,18 +457,39 @@ ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgtemp, co
 ##### c) Calculate the one year difference of average land temperature by year and provide the maximum difference (value) with corresponding two years.                        
 
 ```r
-lagavgtempdiff <- function(averagetemp){
 i=1
 tempdiff=numeric(0)
 tempdiff=0
-for (i in 2:NROW(averagetemp)){
-  tempdiff = abs(averagetemp[i,]$avgtemp-averagetemp[(i-1),]$avgtemp)
-}
- return(round(tempdiff, digits = 3))
-}
+  for (i in 2:NROW(usa_temp_year)){
+   tempdiff = abs(usa_temp_year[i,]$avgtemp-usa_temp_year[(i-1),]$avgtemp)
+  usa_temp_year$avgdifftemp[i] <- tempdiff
+  }
 
-usa_temp_year$difftemp <- lagavgtempdiff(usa_temp_year)
+usa_temp_year$avgdifftemp[is.na(usa_temp_year$avgdifftemp)] <- 0
+
+str(usa_temp_year)
 ```
+
+```
+## 'data.frame':	24 obs. of  5 variables:
+##  $ Country    : Factor w/ 241 levels "Afghanistan",..: 232 232 232 232 232 232 232 232 232 232 ...
+##  $ date.year  : chr  "1990" "1991" "1992" "1993" ...
+##  $ avgtemp    : num  10.49 9.49 9.06 8.87 9.27 ...
+##  $ avgtempinF : num  50.9 49.1 48.3 48 48.7 ...
+##  $ avgdifftemp: num  0 0.996 0.437 0.189 0.403 ...
+```
+<br>
+
+**Plotting by Year and Temperature Difference in U.S.A**
+
+```r
+ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgdifftemp, color=avgdifftemp) ) +
+  geom_point()+
+  ggtitle("Years  w/ Highest Temp. Diff since 1990 ") + xlab("Year") + ylab("Temp. Diff. between max and min") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+![](CaseStudy02_files/figure-html/temp08-1.png)<!-- -->
 <br>
 
 

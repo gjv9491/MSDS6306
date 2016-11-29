@@ -223,13 +223,12 @@ final_temp_data$date.year <- format(as.Date(final_temp_data$date.clean), "%Y")
 final_temp_data02 <- subset(final_temp_data,final_temp_data$date.clean > '1900-12-31')
 temp_country <- sqldf("SELECT Country, (max([Monthly.AverageTemp])) as maxtemp, (min([Monthly.AverageTemp])) as mintemp, (max([Monthly.AverageTemp])) - (min([Monthly.AverageTemp])) as tempdiff  FROM final_temp_data02 Group by Country")
 top20_max_temp <- sqldf("Select src.Country, src.MaxTempDiff From (SELECT Country, max(tempDiff) MaxTempDiff FROM temp_country group by Country) src order by src.MaxTempdiff DESC LIMIT 20")
-#max_country_temp <- sqldf("Select  tc.Country, tc.Month, tc.TempDiff FROM top20_max_temp as mt inner join temp_country as tc on mt.country = tc.country ")
 ``` 
 <br>
 
 ```{r temp03, eval=TRUE, cache=FALSE, echo=TRUE}
 
-ggplot(data=top20_max_temp, aes(x=top20_max_temp$Country, y=top20_max_temp$MaxTempDiff , colour =MaxTempDiff)) +
+ggplot(data=top20_max_temp, aes(x=reorder(top20_max_temp$Country,top20_max_temp$MaxTempDiff ), y=top20_max_temp$MaxTempDiff , colour =MaxTempDiff)) +
   geom_point()+
   ggtitle("20 Countries w/ Highest Temp. Diff") + xlab("Countries") + ylab("Temp. Diff. between max and min") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -275,17 +274,26 @@ ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgtemp, co
 
 ##### c) Calculate the one year difference of average land temperature by year and provide the maximum difference (value) with corresponding two years.                        
 ```{r temp07, eval=TRUE, cache=FALSE, echo=TRUE}
-lagavgtempdiff <- function(averagetemp){
 i=1
 tempdiff=numeric(0)
 tempdiff=0
-for (i in 2:NROW(averagetemp)){
-  tempdiff = abs(averagetemp[i,]$avgtemp-averagetemp[(i-1),]$avgtemp)
-}
- return(round(tempdiff, digits = 3))
-}
+  for (i in 2:NROW(usa_temp_year)){
+   tempdiff = abs(usa_temp_year[i,]$avgtemp-usa_temp_year[(i-1),]$avgtemp)
+  usa_temp_year$avgdifftemp[i] <- tempdiff
+  }
 
-usa_temp_year$difftemp <- lagavgtempdiff(usa_temp_year)
+usa_temp_year$avgdifftemp[is.na(usa_temp_year$avgdifftemp)] <- 0
+
+str(usa_temp_year)
+```     
+<br>
+
+**Plotting by Year and Temperature Difference in U.S.A**
+```{r temp08, eval=TRUE, cache=FALSE, echo=TRUE}
+ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgdifftemp, color=avgdifftemp) ) +
+  geom_point()+
+  ggtitle("Years  w/ Highest Temp. Diff since 1990 ") + xlab("Year") + ylab("Temp. Diff. between max and min") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```     
 <br>
 
