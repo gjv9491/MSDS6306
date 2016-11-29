@@ -307,6 +307,18 @@ head(usa_temp_year)
 ```     
 <br>
 
+* maximum difference (value)
+```{r maxtemp, eval=TRUE, cache=TRUE, echo=TRUE}
+#max temperature difference in F
+max(usa_temp_year$avgdifftempF)
+
+#max temperature difference in C
+max(usa_temp_year$avgdifftemp)
+
+```     
+<br>
+
+
 **Plotting by Year and Temperature Difference in U.S.A**
 ```{r temp08, eval=TRUE, cache=TRUE, echo=TRUE}
 #plot

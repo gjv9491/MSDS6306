@@ -508,6 +508,28 @@ head(usa_temp_year)
 ```
 <br>
 
+* maximum difference (value)
+
+```r
+#max temperature difference in F
+max(usa_temp_year$avgdifftempF)
+```
+
+```
+## [1] 1.864556
+```
+
+```r
+#max temperature difference in C
+max(usa_temp_year$avgdifftemp)
+```
+
+```
+## [1] 1.036028
+```
+<br>
+
+
 **Plotting by Year and Temperature Difference in U.S.A**
 
 ```r
