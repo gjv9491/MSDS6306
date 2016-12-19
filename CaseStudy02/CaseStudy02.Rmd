@@ -1,0 +1,412 @@
+---
+title: "Case Study 02"
+author: "contributed by Ramesh and gino"
+date: "December 08, 2016"
+output: 
+  html_document:
+    keep_md: true
+---
+## Introduction
+
+Case Study 02, final case study.    
+
+* installation and loading of necessary packages              
+* R version        
+<br>
+
+```{r setup, include=TRUE, message=FALSE, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "~/git/MSDS6306/CaseStudy02/Analysis/Data")
+require(tseries)
+require(ggplot2)
+require(sqldf)
+require(lubridate)
+require(tcltk)
+sessionInfo()
+```
+
+<br>
+<br>
+
+### **Question 1**                                                        
+#### **Create the X matrix and print it from SAS, R, and Python.**                                                  
+<br>
+
+#### SAS Code
+
+
+```{sas sasq01, eval=FALSE, cache=TRUE, echo=TRUE}
+data mylib.Xmatrix;
+input x0 x1 x2 x3;
+datalines;
+4 5 1 2
+1 0 3 5
+2 1 8 2
+;
+run;
+quit;
+
+Proc IML;
+use mylib.Xmatrix;
+read all;
+x = x0 || x1 || x2 || x3;
+print x;
+run;
+quit;
+```          
+![alt text](https://github.com/gjv9491/MSDS6306/blob/master/CaseStudy02/CaseStudy02_files/figure-html/SASQ01-1.png "SAS output")
+<br>
+
+#### R Code
+
+
+```{r rq01, eval=TRUE, cache=TRUE, echo=TRUE}
+new_vector <- c(4,5,1,2,1,0,3,5,2,1,8,2)
+X <- matrix(new_vector, ncol=4, nrow=3, byrow=TRUE)
+X
+```                                 
+<br>
+
+#### Python Code
+
+
+```{python pyq01, eval=FALSE, cache=TRUE, echo=TRUE}
+import numpy as np
+
+new_array = np.array([4,5,1,2,1,0,3,5,2,1,8,2])
+new_matrix = np.matrix(new_array)
+X = new_matrix.reshape(3,4)
+print(X)
+```                                     
+![alt text](https://github.com/gjv9491/MSDS6306/blob/master/CaseStudy02/CaseStudy02_files/figure-html/PYTHONQ01-1.png "Python output")
+<br>                  
+<br>  
+<br>    
+
+### **Question 2**                                                        
+#### **Please do the following with your assigned stock. "ADP"** 
+<br>
+
+#### **Download "ADP" data.**
+```{r radp01, eval=TRUE, cache=TRUE, echo=TRUE}
+ADP_data <- get.hist.quote('ADP',quote="Close")
+``` 
+<br>
+
+#### **Calculate log returns.**                        
+```{r radp02, eval=TRUE, cache=TRUE, echo=TRUE}
+ADP_return <- log(lag(ADP_data)) - log(ADP_data)
+ADP_volatility <- sd(ADP_return) * sqrt(250) * 100
+``` 
+<br>
+
+#### **Calculate volatility measure.**
+```{r radp03, eval=TRUE, cache=TRUE, echo=TRUE}
+getVol <- function(d, log_returns){
+  var = 0
+  lam = 0
+  varlist <- c()
+
+  for (r in log_returns) {
+    lam = lam*(1 - 1/d) + 1
+    var = (1 - 1/lam)*var + (1/lam)*r^2
+    varlist <- c(varlist, var)
+  }
+  sqrt(varlist)
+}
+``` 
+<br>
+
+#### **Calculate volatility over entire length of series for various three different decay factors.**
+```{r radp04, eval=TRUE, cache=TRUE, echo=TRUE}
+volest <- getVol(10,ADP_return)
+volest2 <- getVol(30,ADP_return)
+volest3 <- getVol(100,ADP_return)
+
+```                    
+<br>                
+
+#### **Plot the results, overlaying the volatility curves on the data, just as was done in the S&P example.**              
+```{r radp05, eval=TRUE, cache=TRUE, echo=TRUE}
+plot(volest, type="l", col="green", main="Volatility curves for ADP stock", ylab = "Volitality Estimate")
+lines(volest2,type="l",col="red")
+lines(volest3, type = "l", col="blue")
+```                    
+<br>  
+<br>
+<br>
+
+### **Question 3**     
+#### **The built-in data set called Orange in R is about the growth of orange trees. The Orange data frame has 3 columns of records of the growth of orange trees.**                      
+<br>
+
+#### **a) Calculate the mean and the median of the trunk circumferences for different size of the trees. (Tree)**                  
+```{r tree01, eval=TRUE, cache=TRUE, echo=TRUE}
+data("Orange")
+head(Orange)
+str(Orange)
+summary(Orange)
+
+#Mean of circumference by Tree size
+orange_mean <- tapply(Orange$circumference,Orange$Tree,mean)
+orange_mean[order(names(orange_mean))]
+
+#Median of circumference by Tree size
+orange_median <- tapply(Orange$circumference,Orange$Tree,median)
+orange_median[order(names(orange_median))]
+
+``` 
+<br>         
+
+#### **b) Make a scatter plot of the trunk circumferences against the age of the tree. Use different plotting symbols for different size of trees.**                   
+```{r tree02, eval=TRUE, cache=TRUE, echo=TRUE}
+is.numeric(Orange$Tree)
+is.factor(Orange$Tree)
+Orange$order.tree <- as.numeric(as.character(Orange$Tree))
+
+ggplot(data=Orange, aes(x=Orange$circumference, y=Orange$age)) + 
+  geom_point(aes(shape = reorder(Orange$Tree,Orange$order.tree)), size=4) +
+  scale_shape(name="Tree Types", solid = FALSE) +
+  ggtitle("Age vs. Circumference") + xlab("Circumference") + ylab("Age") 
+
+``` 
+<br>                  
+
+#### **c) Display the trunk circumferences on a comparative boxplot against tree. Be sure you order the boxplots in the increasing order of maximum diameter.**            
+```{r tree03, eval=TRUE, cache=TRUE, echo=TRUE}
+  ggplot(Orange, aes(reorder(Orange$Tree,Orange$circumference) , Orange$circumference, fill = reorder(Orange$Tree,Orange$order.tree))) +  
+ geom_boxplot() +
+    guides(fill = guide_legend(title = "Tree Types"))+
+  ggtitle("Tree vs circumference") +
+  xlab("Tree") +  ylab("Circumference")
+``` 
+<br>  
+<br>
+<br>
+
+### **Question 4**     
+#### **Download “Temp” data set**                   
+<br>
+
+#### **Clean TEMP.csv data to get "Date" into one consistant format, before analysis can begin**
+```{r temp01, eval=TRUE, cache=TRUE, echo=TRUE}
+#load TEMP.csv file
+temp_data <- read.csv("TEMP.csv",header=TRUE)
+head(temp_data)
+
+#Any data set that is "NA" has been removed across the board
+temp_data <- temp_data[complete.cases(temp_data),]
+
+#cleaning up date format
+temp_data$date.clean <- as.Date(temp_data$Date, format = "%Y-%m-%d")
+temp_data.sub <- subset(temp_data,is.na(temp_data$date.clean))
+temp_data.sub02 <- subset(temp_data,!is.na(temp_data$date.clean))
+temp_data.sub$date.clean <- format(dmy(temp_data.sub$Date),"%Y-%m-%d")
+temp_data.sub$date.clean <- as.Date(temp_data.sub$date.clean, format = "%Y-%m-%d")
+
+#combining the 2 data set
+final_temp_data <- rbind(temp_data.sub,temp_data.sub02)
+
+#write to a clean file
+write.csv(final_temp_data,"final_temp_data.csv")
+remove(list = ls())
+
+#loading a clean file for analysis
+final_temp_data <- read.csv("final_temp_data.csv",header=TRUE)
+head(final_temp_data)
+```                     
+<br>
+
+#### **(i) Find the difference between the maximum and the minimum monthly average temperatures for each country and report/visualize top 20 countries with the maximum differences for the period since 1900.** 
+```{r temp02, eval=TRUE, cache=TRUE, echo=TRUE}
+#removing unwanted rows
+final_temp_data <- subset(final_temp_data,select = c("Date","Monthly.AverageTemp","Monthly.AverageTemp.Uncertainty","Country","date.clean"))
+
+#verifying date formats
+final_temp_data$date.clean <-  as.Date(final_temp_data$date.clean)
+final_temp_data$date.month <- format(as.Date(final_temp_data$date.clean), "%d")
+final_temp_data$date.year <- format(as.Date(final_temp_data$date.clean), "%Y")
+
+#filtering to data sets > 1900
+final_temp_data02 <- subset(final_temp_data,final_temp_data$date.clean > '1900-12-31')
+
+#grouping by country for plot and analysis
+temp_country <- sqldf("SELECT Country, (max([Monthly.AverageTemp])) as maxtemp, (min([Monthly.AverageTemp])) as mintemp, (max([Monthly.AverageTemp])) - (min([Monthly.AverageTemp])) as tempdiff  FROM final_temp_data02 Group by Country")
+top20_max_temp <- sqldf("Select src.Country, src.MaxTempDiff From (SELECT Country, max(tempDiff) MaxTempDiff FROM temp_country group by Country) src order by src.MaxTempdiff DESC LIMIT 20")
+
+``` 
+<br>
+
+```{r temp03, eval=TRUE, cache=TRUE, echo=TRUE}
+#filtering data set for United states and date range greater than 1990
+ustemp <- subset(final_temp_data02,(final_temp_data02$Country=="United States") & (final_temp_data02$date.clean >= "1990-01-01"))
+
+#plot 01
+ggplot(data=top20_max_temp, aes(x=reorder(top20_max_temp$Country,top20_max_temp$MaxTempDiff ), y=top20_max_temp$MaxTempDiff , colour =MaxTempDiff)) +
+  geom_point()+
+  ggtitle("20 Countries w/ Highest Temp. Diff") + xlab("Countries") + ylab("Temp. Diff. between max and min") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+``` 
+<br>
+
+#### **(ii) Select a subset of data called “UStemp” where US land temperatures from 01/01/1990 in Temp data. Use UStemp dataset to answer the followings.**         
+<br>
+
+```{r temp04, eval=TRUE, cache=TRUE, echo=TRUE}
+#getfahrenheit function takes in celsius and returns fahrenheit
+getfahrenheit <- function(Celsius){
+  return(round(((Celsius*(9/5)) + 32), digits = 3))
+  }
+``` 
+<br>
+
+#### **a) Create a new column to display the monthly average land temperatures in Fahrenheit (°F).**
+```{r temp05, eval=TRUE, cache=TRUE, echo=TRUE}
+#converting celsius to fahrenheit
+ustemp$fahrenheit <- getfahrenheit(ustemp$Monthly.AverageTemp)
+head(ustemp)
+``` 
+<br>
+
+#### **b) Calculate average land temperature by year and plot it. The original file has the average land temperature by month.**                         
+```{r temp06, eval=TRUE, cache=TRUE, echo=TRUE}
+#preparing data set for analysis
+usa_temp_year <- sqldf("SELECT Country, [date.year], avg([Monthly.AverageTemp]) as avgtemp, avg(fahrenheit) as avgtempinF FROM ustemp Group by [date.year]")
+
+#plot 02
+ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgtempinF, color=avgtempinF) ) +
+  geom_point()+
+  ggtitle(" Avg. Temp. in U.S.A every year since 1990") + xlab("Year") + ylab("Average Temperature in (°F)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```     
+<br>
+
+#### **c) Calculate the one year difference of average land temperature by year and provide the maximum difference (value) with corresponding two years.**                        
+```{r temp07, eval=TRUE, cache=TRUE, echo=TRUE}
+# temperature (°C)
+i=1
+tempdiff=numeric(0)
+tempdiff=0
+  for (i in 2:NROW(usa_temp_year)){
+   tempdiff = abs(usa_temp_year[i,]$avgtemp-usa_temp_year[(i-1),]$avgtemp)
+  usa_temp_year$avgdifftemp[i] <- tempdiff
+  }
+
+usa_temp_year$avgdifftemp[is.na(usa_temp_year$avgdifftemp)] <- 0
+
+# temperature (°F)
+i=1
+tempdiffF=numeric(0)
+tempdiffF=0
+  for (i in 2:NROW(usa_temp_year)){
+   tempdiffF = abs(usa_temp_year[i,]$avgtempinF-usa_temp_year[(i-1),]$avgtempinF)
+  usa_temp_year$avgdifftempF[i] <- tempdiffF
+  }
+
+usa_temp_year$avgdifftempF[is.na(usa_temp_year$avgdifftempF)] <- 0
+
+head(usa_temp_year)
+```     
+<br>
+
+* maximum difference (value)
+```{r maxtemp, eval=TRUE, cache=TRUE, echo=TRUE}
+#max temperature difference in F
+max(usa_temp_year$avgdifftempF)
+
+#max temperature difference in C
+max(usa_temp_year$avgdifftemp)
+
+```     
+<br>
+
+
+**Plotting by Year and Temperature Difference in U.S.A**
+```{r temp08, eval=TRUE, cache=TRUE, echo=TRUE}
+#plot
+ggplot(usa_temp_year, aes(x=usa_temp_year$date.year, y=usa_temp_year$avgdifftempF, color=avgdifftempF) ) +
+  geom_point()+
+  ggtitle("Years  w/ Highest Temp. Diff. in U.S.A since 1990 ") + xlab("Year") + ylab("Temp. Diff. between max and min in (°F)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+#cleanup before city analysis
+remove(list = ls())
+
+```     
+<br>
+
+#### **(iii) Download “CityTemp” data set (check your SMU email). Find the difference between the maximum and the minimum temperatures for each major city and report/visualize top 20 cities with maximum differences for the period since 1900.** 
+```{r city01, eval=TRUE, cache=TRUE, echo=TRUE}
+#load city data 
+city.temp <- read.csv("CityTemp.csv",header=TRUE)
+head(city.temp)
+
+#Any data set that is "NA" has been removed across the board
+city.temp <- city.temp[complete.cases(city.temp),]
+
+#cleaning up date format
+city.temp$date.clean <- as.Date(city.temp$Date, format = "%Y-%m-%d")
+city.temp.sub <- subset(city.temp,is.na(city.temp$date.clean))
+city.temp.sub02 <- subset(city.temp,!is.na(city.temp$date.clean))
+city.temp.sub$date.clean <- format(dmy(city.temp.sub$Date),"%Y-%m-%d")
+city.temp.sub$date.clean <- as.Date(city.temp.sub$date.clean, format = "%Y-%m-%d")
+
+#combining the 2 data set
+final_city_temp <- rbind(city.temp.sub,city.temp.sub02)
+
+#write to a clean file
+write.csv(final_city_temp,"final_city_temp.csv")
+remove(list = ls())
+
+#loading a clean file for analysis
+final_city_temp <- read.csv("final_city_temp.csv",header=TRUE)
+head(final_city_temp)
+
+``` 
+<br>
+
+```{r city02, eval=TRUE, cache=TRUE, echo=TRUE}
+#remove unwanted rows
+
+final_city_temp <- subset(final_city_temp,select = c("Date","Monthly.AverageTemp","Monthly.AverageTemp.Uncertainty","City","date.clean"))
+final_city_temp$date.clean <-  as.Date(final_city_temp$date.clean)
+final_city_temp$date.month <- format(as.Date(final_city_temp$date.clean), "%d")
+final_city_temp$date.year <- format(as.Date(final_city_temp$date.clean), "%Y")
+final_city_temp02 <- subset(final_city_temp,final_city_temp$date.clean > '1900-12-31')
+
+
+temp_city <- sqldf("SELECT City, (max([Monthly.AverageTemp])) as maxtemp, (min([Monthly.AverageTemp])) as mintemp, (max([Monthly.AverageTemp])) - (min([Monthly.AverageTemp])) as tempdiff  FROM final_city_temp02 Group by City")
+top20_city_temp <- sqldf("Select src.City, src.MaxTempDiff From (SELECT City, max(tempDiff) MaxTempDiff FROM temp_city group by City) src order by src.MaxTempdiff DESC LIMIT 20")
+
+``` 
+<br>
+
+**Plotting Top 20 Cities with Temperature Difference in the world**
+```{r city03, eval=TRUE, cache=TRUE, echo=TRUE}
+ggplot(data=top20_city_temp, aes(x=reorder(top20_city_temp$City,top20_city_temp$MaxTempDiff ), y=top20_city_temp$MaxTempDiff , colour =MaxTempDiff)) +
+  geom_point()+
+  ggtitle("20 Cities w/ Highest Temp. Diff") + xlab("Cities") + ylab("Temp. Diff. between max and min") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+remove(list = ls())
+
+```     
+<br>
+
+#### **(iv) Compare the two graphs in (i) and (iii)  and comment it.**
+
+When comparing both the graphs from 4.1 and 4.3, the following can be understood.                          
+
+* The cities from top 20 countires do not make it to the list of the top 20 cities with maximum temperature difference                                      
+* While Kazakhstan and Mongolia are top 2 countries with maximum temperature differences, none of the cities made to top 5 of the cities with similar temperature calculations.           
+* While China didn’t make to the top 20 countries list, but 3 of China’s cities – Harbin, Changchun, and Shenyang made to top 5 cities list.                                      
+* Russia and Canada and their cities made to top 10 in both charts.                                        
+                          
+There is sufficient evidence to conclude that global warming is prevelant, more so in the northern hemisphere closer to the artic, where countries such as Russia, Canada, Mongolia are affected so are there cities. However overall comparison of temperatures at a Country level and city level, not necessarily apply to all regions within the country. A more detailed analysis at Geographical Region level may be required to evaluate for better conclusions.
+
+<br>
+<br>
+<br>
+
+

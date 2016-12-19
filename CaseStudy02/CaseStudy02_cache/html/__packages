@@ -1,0 +1,10 @@
+base
+tseries
+ggplot2
+lubridate
+dplyr
+plyr
+proto
+gsubfn
+RSQLite
+sqldf
